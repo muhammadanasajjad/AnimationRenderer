@@ -1,0 +1,11 @@
+# ninja log v7
+1	189	1792251302657172587	CMakeFiles/OpenGLProject.dir/external/glad/src/glad.c.o	7e9448612cfa32c4
+1	591	1792251903282603608	CMakeFiles/OpenGLProject.dir/src/main.cpp.o	87ee08cbf87eb962
+592	678	1792251903873604759	OpenGLProject	840be98112a22c63
+1	205	1792251946376475520	CMakeFiles/AnimationRasteriser.dir/external/glad/src/glad.c.o	761b470236d6342d
+16	694	1792267587708031807	CMakeFiles/AnimationRasteriser.dir/src/main.cpp.o	de10a0cc227197c8
+751	843	1792267927623767590	AnimationRasteriser	d23d72c1a9643138
+1	16	1792433624313242789	/home/muhammadanasajjad/Documents/Programming/AnimationRasteriser/build/CMakeFiles/cmake.verify_globs	4979da7214cda87a
+16	856	1792267587709214870	CMakeFiles/AnimationRasteriser.dir/src/renderer/Render.cpp.o	e0481fef5e9af1cb
+15	751	1792267926887763974	CMakeFiles/AnimationRasteriser.dir/src/renderer/Shader.cpp.o	938bed4f913f372f
+1	14	1792433670568339174	/home/muhammadanasajjad/Documents/Programming/AnimationRasteriser/build/CMakeFiles/cmake.verify_globs	4979da7214cda87a

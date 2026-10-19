@@ -1,0 +1,3 @@
+/home/muhammadanasajjad/Documents/Programming/AnimationRasteriser/build/CMakeFiles/AnimationRasteriser.dir
+/home/muhammadanasajjad/Documents/Programming/AnimationRasteriser/build/CMakeFiles/edit_cache.dir
+/home/muhammadanasajjad/Documents/Programming/AnimationRasteriser/build/CMakeFiles/rebuild_cache.dir
