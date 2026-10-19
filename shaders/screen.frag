@@ -23,38 +23,38 @@ vec2 projectPoint(vec3 point) {
     return projected;
 }
 
+bool pointInTriangle(vec2 point, vec2 triP1, vec2 triP2, vec2 triP3) {
+    vec2 line12 = triP2 - triP1;
+    vec2 line23 = triP3 - triP2;
+    vec2 line31 = triP1 - triP3;
+    
+    vec2 rotated12 = vec2(-line12.y, line12.x);
+    vec2 rotated23 = vec2(-line23.y, line23.x);
+    vec2 rotated31 = vec2(-line31.y, line31.x);
+    
+    vec2 toPixel = uv - triP1;
+    float dot1 = dot(toPixel, rotated12);
+    toPixel = uv - triP2;
+    float dot2 = dot(toPixel, rotated23);
+    toPixel = uv - triP3;
+    float dot3 = dot(toPixel, rotated31);
+    
+    return (dot1 < 0 && dot2 < 0 && dot3 < 0) || (dot1 > 0 && dot2 > 0 && dot3 > 0);
+}
+
 void main() {
     fragColor = vec4(uv, 0.0, 1.0);
     
     vec3 point1 = vec3(10, 5, 5);
-    vec3 point2 = vec3(10, 10, 5);
+    vec3 point2 = vec3(15, -5, 5);
     vec3 point3 = vec3(15, 5, 5);
 
     vec2 projected1 = projectPoint(point1);
     vec2 projected2 = projectPoint(point2);
     vec2 projected3 = projectPoint(point3);
     
-    vec2 line12 = projected2 - projected1;
-    vec2 line23 = projected3 - projected2;
-    vec2 line31 = projected1 - projected3;
-    
-    vec2 rotated12 = vec2(-line12.y, line12.x);
-    vec2 rotated23 = vec2(-line23.y, line23.x);
-    vec2 rotated31 = vec2(-line31.y, line31.x);
-    
-    vec2 toPixel = uv - projected1;
-    float dot1 = dot(toPixel, rotated12);
-    toPixel = uv - projected2;
-    float dot2 = dot(toPixel, rotated23);
-    toPixel = uv - projected3;
-    float dot3 = dot(toPixel, rotated31);
-    
     fragColor = vec4(0);
-    if (dot1 < 0 && dot2 < 0 && dot3 < 0) {
-        fragColor = vec4(1);
-    }
-    if (dot1 > 0 && dot2 > 0 && dot3 > 0) {
-        fragColor = vec4(1);
-    }
+    bool inside = pointInTriangle(uv, projected1, projected2, projected3);
+    if (inside) fragColor = vec4(1);
 }
 
