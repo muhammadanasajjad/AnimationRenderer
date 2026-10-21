@@ -3,9 +3,11 @@
 1	591	1792251903282603608	CMakeFiles/OpenGLProject.dir/src/main.cpp.o	87ee08cbf87eb962
 592	678	1792251903873604759	OpenGLProject	840be98112a22c63
 1	205	1792251946376475520	CMakeFiles/AnimationRasteriser.dir/external/glad/src/glad.c.o	761b470236d6342d
-16	694	1792267587708031807	CMakeFiles/AnimationRasteriser.dir/src/main.cpp.o	de10a0cc227197c8
-751	843	1792267927623767590	AnimationRasteriser	d23d72c1a9643138
-1	13	1792444349609850647	/home/muhammadanasajjad/Documents/Programming/AnimationRasteriser/build/CMakeFiles/cmake.verify_globs	4979da7214cda87a
-16	856	1792267587709214870	CMakeFiles/AnimationRasteriser.dir/src/renderer/Render.cpp.o	e0481fef5e9af1cb
-15	751	1792267926887763974	CMakeFiles/AnimationRasteriser.dir/src/renderer/Shader.cpp.o	938bed4f913f372f
-1	14	1792444368132920682	/home/muhammadanasajjad/Documents/Programming/AnimationRasteriser/build/CMakeFiles/cmake.verify_globs	4979da7214cda87a
+14	872	1792614959277748708	CMakeFiles/AnimationRasteriser.dir/src/main.cpp.o	de10a0cc227197c8
+1043	1125	1792615689075679382	AnimationRasteriser	d23d72c1a9643138
+0	12	1792615688033675346	/home/muhammadanasajjad/Documents/Programming/AnimationRasteriser/build/CMakeFiles/cmake.verify_globs	4979da7214cda87a
+13	1043	1792615688045675392	CMakeFiles/AnimationRasteriser.dir/src/renderer/Render.cpp.o	e0481fef5e9af1cb
+14	962	1792615291185985589	CMakeFiles/AnimationRasteriser.dir/src/renderer/Shader.cpp.o	938bed4f913f372f
+1	13	1792615707486750692	/home/muhammadanasajjad/Documents/Programming/AnimationRasteriser/build/CMakeFiles/cmake.verify_globs	4979da7214cda87a
+15	981	1792615707500750746	CMakeFiles/AnimationRasteriser.dir/src/renderer/Render.cpp.o	e0481fef5e9af1cb
+981	1062	1792615708466754488	AnimationRasteriser	d23d72c1a9643138
