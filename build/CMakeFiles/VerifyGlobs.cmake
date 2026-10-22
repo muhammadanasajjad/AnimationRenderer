@@ -5,8 +5,9 @@
 file(GLOB_RECURSE NEW_GLOB LIST_DIRECTORIES false "/home/muhammadanasajjad/Documents/Programming/AnimationRasteriser/src/*.cpp")
 set(OLD_GLOB
   "/home/muhammadanasajjad/Documents/Programming/AnimationRasteriser/src/main.cpp"
-  "/home/muhammadanasajjad/Documents/Programming/AnimationRasteriser/src/renderer/Render.cpp"
+  "/home/muhammadanasajjad/Documents/Programming/AnimationRasteriser/src/renderer/Renderer.cpp"
   "/home/muhammadanasajjad/Documents/Programming/AnimationRasteriser/src/renderer/Shader.cpp"
+  "/home/muhammadanasajjad/Documents/Programming/AnimationRasteriser/src/scene/Scene.cpp"
   )
 if(NOT "${NEW_GLOB}" STREQUAL "${OLD_GLOB}")
   message("-- GLOB mismatch!")

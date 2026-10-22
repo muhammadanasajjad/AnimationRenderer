@@ -3,7 +3,7 @@
 #include <GLFW/glfw3.h>
 #include <iostream>
 
-#include "renderer/Renderer.h"
+#include "scene/Scene.h"
 
 int main() {
     if (!glfwInit()) {
@@ -42,7 +42,7 @@ int main() {
     std::cout << "OpenGL "
               << reinterpret_cast<const char*>(glGetString(GL_VERSION)) << std::endl;
     
-    Renderer renderer = Renderer();
+    Scene scene = Scene();
 
     while (!glfwWindowShouldClose(window)) {
         int width;
@@ -54,7 +54,7 @@ int main() {
         glClearColor(0.08f, 0.08f, 0.10f, 1.0f);
         glClear(GL_COLOR_BUFFER_BIT);
         
-        renderer.render();
+        scene.render();
 
         glfwSwapBuffers(window);
         glfwPollEvents();
