@@ -39,7 +39,13 @@ void main() {
     if (index >= triangleCount)
         return;
     
-    triangles[index].a = vec4(projectPoint(triangles[index].a.xyz), 0, 0);
-    triangles[index].b = vec4(projectPoint(triangles[index].b.xyz), 0, 0);
-    triangles[index].c = vec4(projectPoint(triangles[index].c.xyz), 0, 0);
+    float depthA = length(cameraPosition - triangles[index].a.xyz);
+    float depthB = length(cameraPosition - triangles[index].b.xyz);
+    float depthC = length(cameraPosition - triangles[index].c.xyz);
+    triangles[index].a.xy = projectPoint(triangles[index].a.xyz);
+    triangles[index].a.z = depthA;
+    triangles[index].b.xy = projectPoint(triangles[index].b.xyz);
+    triangles[index].b.z = depthB;
+    triangles[index].c.xy = projectPoint(triangles[index].c.xyz);
+    triangles[index].c.z = depthC;
 }

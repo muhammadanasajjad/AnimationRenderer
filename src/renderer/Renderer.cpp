@@ -7,6 +7,7 @@
 #include <vector>
 
 #include "Renderer.h"
+#include "../scene/Material.h"
 #include "../scene/Triangle.h"
 
 Renderer::Renderer() : 
@@ -16,6 +17,7 @@ Renderer::Renderer() :
     projectionShader.use();
     
     std::vector<Triangle> triangles = {};
+    std::vector<Material> materials = {};
     
     projectionShader.setVec3("cameraPosition", glm::vec3(0.0f, 0.0f, 0.0f));
     projectionShader.setVec3("cameraForward", glm::vec3(1.0f, 0.0f, 0.0f));
@@ -27,11 +29,16 @@ Renderer::Renderer() :
     projectionShader.setUInt("triangleCount", triangles.size());
     
     glGenBuffers(1, &triangleSSBO);
+    glGenBuffers(1, &materialSSBO);
     
     glBindBuffer(GL_SHADER_STORAGE_BUFFER, triangleSSBO);
-    glBufferData(GL_SHADER_STORAGE_BUFFER, triangles.size() * sizeof(Triangle), triangles.data(), GL_STATIC_DRAW);
-    // TODO: update the binding number later
+    glBufferData(GL_SHADER_STORAGE_BUFFER, triangles.size() * sizeof(Triangle), triangles.data(), GL_DYNAMIC_DRAW);
+
+    glBindBuffer(GL_SHADER_STORAGE_BUFFER, materialSSBO);
+    glBufferData(GL_SHADER_STORAGE_BUFFER, materials.size() * sizeof(Material), materials.data(), GL_DYNAMIC_DRAW);
+    // TODO: update the binding numbers later to make a sensical order
     glBindBufferBase(GL_SHADER_STORAGE_BUFFER, 0, triangleSSBO);
+    glBindBufferBase(GL_SHADER_STORAGE_BUFFER, 1, materialSSBO);
     
     glDispatchCompute((triangles.size() + 255) / 256, 1, 1);
     glMemoryBarrier(GL_SHADER_STORAGE_BARRIER_BIT);
@@ -58,7 +65,7 @@ Renderer::Renderer() :
 }
 
 
-void Renderer::render(std::vector<Triangle>& triangles) {
+void Renderer::render(std::vector<Triangle>& triangles, std::vector<Material>& materials) {
     projectionShader.use();
 
     projectionShader.setUInt("triangleCount", triangles.size());
@@ -71,12 +78,21 @@ void Renderer::render(std::vector<Triangle>& triangles) {
         GL_DYNAMIC_DRAW
     );
 
+    glBindBuffer(GL_SHADER_STORAGE_BUFFER, materialSSBO);
+    glBufferData(
+        GL_SHADER_STORAGE_BUFFER,
+        materials.size() * sizeof(Material),
+        materials.data(),
+        GL_DYNAMIC_DRAW
+    );
+
     glBindBufferBase(GL_SHADER_STORAGE_BUFFER, 0, triangleSSBO);
+    glBindBufferBase(GL_SHADER_STORAGE_BUFFER, 1, materialSSBO);
 
     if (!triangles.empty()) {
         glDispatchCompute((triangles.size() + 255) / 256, 1, 1);
-        glMemoryBarrier(GL_SHADER_STORAGE_BARRIER_BIT);
     }
+    glMemoryBarrier(GL_SHADER_STORAGE_BARRIER_BIT);
 
     screenShader.use();
     screenShader.setUInt("triangleCount", triangles.size());

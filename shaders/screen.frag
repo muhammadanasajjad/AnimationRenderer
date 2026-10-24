@@ -6,8 +6,16 @@ struct Triangle {
     vec4 c;
 };
 
+struct Material {
+    vec4 albedo;
+};
+
 layout(std430, binding = 0) buffer TriangleBuffer {
     Triangle triangles[];
+};
+
+layout(std430, binding = 1) buffer MaterialBuffer {
+    Material materials[];
 };
 
 uniform uint triangleCount;
@@ -39,13 +47,30 @@ void main() {
     fragColor = vec4(uv, 0.0, 1.0);
     
     fragColor = vec4(0);
+    float closestDepth = 1e10;
     for (int i = 0; i < triangleCount; i++) {
         Triangle tri = triangles[i];
         vec2 projected1 = tri.a.xy;
         vec2 projected2 = tri.b.xy;
         vec2 projected3 = tri.c.xy;
         bool inside = pointInTriangle(uv, projected1, projected2, projected3);
-        if (inside) fragColor = vec4(1);
+        
+        float alpha = cross(vec3(projected2 - projected3, 0), vec3(uv - projected3, 0)).z;
+        float beta  = cross(vec3(projected3 - projected1, 0), vec3(uv - projected1, 0)).z;
+        float gamma = cross(vec3(projected1 - projected2, 0), vec3(uv - projected2, 0)).z;
+
+        float totalArea = cross(vec3(projected2 - projected1, 0), vec3(projected3 - projected1, 0)).z;
+        float areaReciprocal = -1.0 / totalArea;
+
+        alpha *= areaReciprocal;
+        beta  *= areaReciprocal;
+        gamma *= areaReciprocal;
+        
+        float depth = alpha * tri.a.z + beta * tri.b.z + gamma * tri.c.z;
+        if (inside && depth < closestDepth) {
+            fragColor = materials[int(tri.a.a)].albedo;
+            closestDepth = depth;
+        }
     }
 }
 

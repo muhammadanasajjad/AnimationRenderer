@@ -3,6 +3,7 @@
 #include <vector>
 
 #include "Triangle.h"
+#include "Material.h"
 #include "../renderer/Renderer.h"
 
 class Scene {
@@ -13,10 +14,9 @@ public:
     void render();
     void clearTriangles();
 
-    const std::vector<Triangle>& getTriangles() const;
-
 private:
     std::vector<Triangle> triangles;
+    std::vector<Material> materials;
     Renderer renderer;
 };
 
