@@ -1,26 +1,10 @@
 #include "Scene.h"
+#include "Shapes.h"
 
 Scene::Scene() : renderer() {
-    triangles = {
-        { glm::vec4(10.0f,    -2.0f,  2.8284f, 0), glm::vec4(12.8284f, -2.0f,  0.0f,    1.0f), glm::vec4(10.0f,    -2.0f, -2.8284f, 1.0f) },
-        { glm::vec4(10.0f,    -2.0f,  2.8284f, 1), glm::vec4(10.0f,    -2.0f, -2.8284f, 1.0f), glm::vec4(7.1716f,  -2.0f,  0.0f,    1.0f) },
+    Square square(4.0f, glm::vec3(10.0f, 0.0f, 0.0f), glm::vec3(0.0f, glm::radians(90.0f), 0.0f));
+    square.addTriangles(*this);
 
-        { glm::vec4(10.0f,     2.0f,  2.8284f, 0), glm::vec4(12.8284f,  2.0f,  0.0f,    1.0f), glm::vec4(10.0f,     2.0f, -2.8284f, 1.0f) },
-        { glm::vec4(10.0f,     2.0f,  2.8284f, 1), glm::vec4(10.0f,     2.0f, -2.8284f, 1.0f), glm::vec4(7.1716f,   2.0f,  0.0f,    1.0f) },
-
-        { glm::vec4(10.0f,    -2.0f,  2.8284f, 0), glm::vec4(12.8284f, -2.0f,  0.0f,    1.0f), glm::vec4(12.8284f,  2.0f,  0.0f,    1.0f) },
-        { glm::vec4(10.0f,    -2.0f,  2.8284f, 1), glm::vec4(12.8284f,  2.0f,  0.0f,    1.0f), glm::vec4(10.0f,     2.0f,  2.8284f, 1.0f) },
-
-        { glm::vec4(12.8284f, -2.0f,  0.0f,    0), glm::vec4(10.0f,    -2.0f, -2.8284f, 1.0f), glm::vec4(10.0f,     2.0f, -2.8284f, 1.0f) },
-        { glm::vec4(12.8284f, -2.0f,  0.0f,    1), glm::vec4(10.0f,     2.0f, -2.8284f, 1.0f), glm::vec4(12.8284f,  2.0f,  0.0f,    1.0f) },
-
-        { glm::vec4(10.0f,    -2.0f, -2.8284f, 0), glm::vec4(7.1716f,  -2.0f,  0.0f,    1.0f), glm::vec4(7.1716f,   2.0f,  0.0f,    1.0f) },
-        { glm::vec4(10.0f,    -2.0f, -2.8284f, 1), glm::vec4(7.1716f,   2.0f,  0.0f,    1.0f), glm::vec4(10.0f,     2.0f, -2.8284f, 1.0f) },
-
-        { glm::vec4(7.1716f,  -2.0f,  0.0f,    0), glm::vec4(10.0f,    -2.0f,  2.8284f, 1.0f), glm::vec4(10.0f,     2.0f,  2.8284f, 1.0f) },
-        { glm::vec4(7.1716f,  -2.0f,  0.0f,    1), glm::vec4(10.0f,     2.0f,  2.8284f, 1.0f), glm::vec4(7.1716f,   2.0f,  0.0f,    1.0f) },
-    }; // TODO: this is temporary
-    
     materials = {
         { glm::vec4(1.0, 0.5, 1.0, 1.0) },
         { glm::vec4(0.5, 1.0, 1.0, 1.0) }

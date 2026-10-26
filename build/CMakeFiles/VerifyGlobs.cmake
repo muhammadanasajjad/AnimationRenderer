@@ -8,6 +8,7 @@ set(OLD_GLOB
   "/home/muhammadanasajjad/Documents/Programming/AnimationRasteriser/src/renderer/Renderer.cpp"
   "/home/muhammadanasajjad/Documents/Programming/AnimationRasteriser/src/renderer/Shader.cpp"
   "/home/muhammadanasajjad/Documents/Programming/AnimationRasteriser/src/scene/Scene.cpp"
+  "/home/muhammadanasajjad/Documents/Programming/AnimationRasteriser/src/scene/Shapes.cpp"
   )
 if(NOT "${NEW_GLOB}" STREQUAL "${OLD_GLOB}")
   message("-- GLOB mismatch!")
