@@ -95,38 +95,43 @@ std::vector<Triangle> strokeOutline(const std::vector<glm::vec3>& outline, float
     return triangles;
 }
 
-void Shape::addTriangles(Scene& scene) {
+std::vector<Material> Shape::getMaterials() {
+    std::vector<Material> materials;
+
+    if (fill.enabled) materials.push_back(fill.material);
+    if (stroke.enabled) materials.push_back(stroke.material);
+
+    return materials;
+}
+
+std::vector<Triangle> Shape::getTriangles(int materialCount) {
+    std::vector<Triangle> triangles;
     std::vector<glm::vec3> transformedOutline;
 
     for (const auto& point : outline) {
         transformedOutline.push_back(transform.apply(point));
     }
 
+    int fillMaterialIndex = materialCount;
+    int strokeMaterialIndex = materialCount + (fill.enabled ? 1 : 0);
+
     if (fill.enabled) {
-        std::vector<Triangle> triangles = triangulate(
-            transformedOutline,
-            scene.getMaterialCount(),
-            flag
-        );
+        std::vector<Triangle> fillTriangles =
+            triangulate(transformedOutline, fillMaterialIndex, flag);
 
-        scene.addMaterial(fill.material);
-
-        for (const auto& triangle : triangles) {
-            scene.addTriangle(triangle);
+        for (const Triangle& triangle : fillTriangles) {
+            triangles.push_back(triangle);
         }
     }
 
     if (stroke.enabled) {
-        std::vector<Triangle> triangles = strokeOutline(
-            transformedOutline,
-            stroke.width,
-            scene.getMaterialCount()
-        );
+        std::vector<Triangle> strokeTriangles =
+            strokeOutline(transformedOutline, stroke.width, strokeMaterialIndex);
 
-        scene.addMaterial(stroke.material);
-
-        for (const auto& triangle : triangles) {
-            scene.addTriangle(triangle);
+        for (const Triangle& triangle : strokeTriangles) {
+            triangles.push_back(triangle);
         }
     }
+
+    return triangles;
 }

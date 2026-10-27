@@ -4,12 +4,16 @@
 
 #include "Triangle.h"
 #include "Material.h"
+#include "Shapes.h"
 #include "../renderer/Renderer.h"
 
 class Scene {
 public:
     Scene();
-    
+
+    std::vector<Shape*> objects;
+
+    void addObject(Shape* object);
     void addTriangle(const Triangle& triangle);
     void addMaterial(const Material& material);
     int getMaterialCount();
@@ -21,4 +25,3 @@ private:
     std::vector<Material> materials;
     Renderer renderer;
 };
-

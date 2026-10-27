@@ -9,11 +9,12 @@ public:
     std::vector<glm::vec3> outline;
     Fill fill;
     Stroke stroke;
-    
-    void addTriangles(Scene& scene) override;
+
+    std::vector<Triangle> getTriangles(int materialCount) override;
+    std::vector<Material> getMaterials() override;
+
 private:
-    // TODO: use enum
-    int flag = 0; // 0 is triangle filled
+    int flag = 0;
 };
 
 class Square : public Shape {

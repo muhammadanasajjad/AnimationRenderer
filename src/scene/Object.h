@@ -1,12 +1,15 @@
 #pragma once
 
+#include <vector>
+
 #include "Transform.h"
-#include "Scene.h"
+#include "Triangle.h"
+#include "Material.h"
 
 class Object {
 public:
     Transform transform;
 
-    virtual void addTriangles(Scene& scene) {};
+    virtual std::vector<Triangle> getTriangles(int materialCount) = 0;
+    virtual std::vector<Material> getMaterials() = 0;
 };
-
