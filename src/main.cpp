@@ -43,6 +43,9 @@ int main() {
               << reinterpret_cast<const char*>(glGetString(GL_VERSION)) << std::endl;
     
     Scene scene = Scene();
+    double lastTime = glfwGetTime();
+    int frames = 0;
+    int fps = 0;
 
     while (!glfwWindowShouldClose(window)) {
         int width;
@@ -53,11 +56,26 @@ int main() {
         glViewport(0, 0, width, height);
         glClearColor(0.08f, 0.08f, 0.10f, 1.0f);
         glClear(GL_COLOR_BUFFER_BIT);
-        
+
         scene.render();
 
         glfwSwapBuffers(window);
         glfwPollEvents();
+
+        frames++;
+
+        double currentTime = glfwGetTime();
+
+        if (currentTime - lastTime >= 1.0) {
+            fps = frames;
+            frames = 0;
+            lastTime = currentTime;
+
+            glfwSetWindowTitle(
+                window,
+                ("Animation Rasteriser | FPS: " + std::to_string(fps)).c_str()
+            );
+        }
     }
 
     glfwDestroyWindow(window);
