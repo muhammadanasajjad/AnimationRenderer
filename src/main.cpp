@@ -56,7 +56,8 @@ int main() {
         glViewport(0, 0, width, height);
         glClearColor(0.08f, 0.08f, 0.10f, 1.0f);
         glClear(GL_COLOR_BUFFER_BIT);
-
+        
+        scene.update(1.0f/60.0f);
         scene.render();
 
         glfwSwapBuffers(window);

@@ -1,7 +1,7 @@
 #include "Scene.h"
 #include "Shapes.h"
 
-Scene::Scene() : renderer() {
+Scene::Scene() : timeline(objects), renderer() {
     Rectangle* rectangle1 = new Rectangle(
         6.0f,
         3.0f,
@@ -53,9 +53,20 @@ Scene::Scene() : renderer() {
     ellipse2->stroke.material.albedo = glm::vec4(1.0f, 0.3f, 1.0f, 1.0f);
     ellipse2->stroke.width = 0.15f;
     addObject(ellipse2);
+    
+    timeline.addAnimation({
+        AnimationType::Move,
+        0,
+        0.0f,
+        2.0f,
+        glm::vec4(10.0f, 0.0f, 0.0f, 0.0f),
+        glm::vec4(10.0f, 5.0f, 0.0f, 0.0f)
+    });
 }
 
-void Scene::render() {
+void Scene::update(float deltaTime) {
+    timeline.update(deltaTime);
+    
     triangles = {};
     materials = {};
 
@@ -71,7 +82,9 @@ void Scene::render() {
             materials.push_back(material);
         }
     }
+}
 
+void Scene::render() {
     renderer.render(triangles, materials);
 }
 
@@ -91,6 +104,6 @@ void Scene::clearTriangles() {
     triangles.clear();
 }
 
-void Scene::addObject(Shape* object) {
+void Scene::addObject(Object* object) {
     objects.push_back(object);
 }

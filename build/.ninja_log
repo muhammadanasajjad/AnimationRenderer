@@ -1,13 +1,11 @@
 # ninja log v7
-1	13	1793128279181351695	/home/muhammadanasajjad/Documents/Programming/AnimationRasteriser/build/CMakeFiles/cmake.verify_globs	4979da7214cda87a
+1	13	1793197156577527096	/home/muhammadanasajjad/Documents/Programming/AnimationRasteriser/build/CMakeFiles/cmake.verify_globs	4979da7214cda87a
 15	331	1793128212073314091	CMakeFiles/AnimationRasteriser.dir/external/glad/src/glad.c.o	761b470236d6342d
-14	870	1793128279194351730	CMakeFiles/AnimationRasteriser.dir/src/scene/Shapes.cpp.o	135bcedfd638c7de
-14	1137	1793128212072475188	CMakeFiles/AnimationRasteriser.dir/src/renderer/Renderer.cpp.o	abd9e561c182d033
-14	1355	1793128212072886190	CMakeFiles/AnimationRasteriser.dir/src/scene/Scene.cpp.o	7f087e49c4535dc2
+15	1272	1793197156592669180	CMakeFiles/AnimationRasteriser.dir/src/scene/Shapes.cpp.o	135bcedfd638c7de
+14	1213	1793197156592282537	CMakeFiles/AnimationRasteriser.dir/src/renderer/Renderer.cpp.o	abd9e561c182d033
+15	1104	1793197156592492831	CMakeFiles/AnimationRasteriser.dir/src/scene/Scene.cpp.o	7f087e49c4535dc2
 14	1494	1793128212072709120	CMakeFiles/AnimationRasteriser.dir/src/renderer/Shader.cpp.o	938bed4f913f372f
-14	1541	1793128212071170593	CMakeFiles/AnimationRasteriser.dir/src/main.cpp.o	de10a0cc227197c8
-870	960	1793128280050354039	AnimationRasteriser	d2be914d842076f2
-1	13	1793128352624575321	/home/muhammadanasajjad/Documents/Programming/AnimationRasteriser/build/CMakeFiles/cmake.verify_globs	4979da7214cda87a
-14	883	1793128352638918129	CMakeFiles/AnimationRasteriser.dir/src/scene/Shapes.cpp.o	135bcedfd638c7de
-14	1057	1793128352637575368	CMakeFiles/AnimationRasteriser.dir/src/scene/Scene.cpp.o	7f087e49c4535dc2
-1057	1150	1793128353680579140	AnimationRasteriser	d2be914d842076f2
+14	1030	1793197156592104153	CMakeFiles/AnimationRasteriser.dir/src/main.cpp.o	de10a0cc227197c8
+1272	1359	1793197157848527059	AnimationRasteriser	e670d1c2c48becc7
+14	1205	1793197156590527095	CMakeFiles/AnimationRasteriser.dir/src/animation/Timeline.cpp.o	38d1655bc0d14fb4
+1	12	1793197286404544579	/home/muhammadanasajjad/Documents/Programming/AnimationRasteriser/build/CMakeFiles/cmake.verify_globs	4979da7214cda87a

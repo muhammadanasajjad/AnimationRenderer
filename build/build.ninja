@@ -44,6 +44,14 @@ cmake_ninja_workdir = /home/muhammadanasajjad/Documents/Programming/AnimationRas
 
 build cmake_object_order_depends_target_AnimationRasteriser: phony || .
 
+build CMakeFiles/AnimationRasteriser.dir/src/animation/Timeline.cpp.o: CXX_COMPILER__AnimationRasteriser_unscanned_ /home/muhammadanasajjad/Documents/Programming/AnimationRasteriser/src/animation/Timeline.cpp || cmake_object_order_depends_target_AnimationRasteriser
+  DEP_FILE = CMakeFiles/AnimationRasteriser.dir/src/animation/Timeline.cpp.o.d
+  FLAGS = -std=gnu++20
+  INCLUDES = -I/home/muhammadanasajjad/Documents/Programming/AnimationRasteriser/external/glad/include -I/home/muhammadanasajjad/Documents/Programming/AnimationRasteriser/include
+  OBJECT_DIR = CMakeFiles/AnimationRasteriser.dir
+  OBJECT_FILE_DIR = CMakeFiles/AnimationRasteriser.dir/src/animation
+  TARGET_SUPPORT_DIR = CMakeFiles/AnimationRasteriser.dir
+
 build CMakeFiles/AnimationRasteriser.dir/src/main.cpp.o: CXX_COMPILER__AnimationRasteriser_unscanned_ /home/muhammadanasajjad/Documents/Programming/AnimationRasteriser/src/main.cpp || cmake_object_order_depends_target_AnimationRasteriser
   DEP_FILE = CMakeFiles/AnimationRasteriser.dir/src/main.cpp.o.d
   FLAGS = -std=gnu++20
@@ -99,7 +107,7 @@ build CMakeFiles/AnimationRasteriser.dir/external/glad/src/glad.c.o: C_COMPILER_
 #############################################
 # Link the executable AnimationRasteriser
 
-build AnimationRasteriser: CXX_EXECUTABLE_LINKER__AnimationRasteriser_ CMakeFiles/AnimationRasteriser.dir/src/main.cpp.o CMakeFiles/AnimationRasteriser.dir/src/renderer/Renderer.cpp.o CMakeFiles/AnimationRasteriser.dir/src/renderer/Shader.cpp.o CMakeFiles/AnimationRasteriser.dir/src/scene/Scene.cpp.o CMakeFiles/AnimationRasteriser.dir/src/scene/Shapes.cpp.o CMakeFiles/AnimationRasteriser.dir/external/glad/src/glad.c.o | /usr/lib64/libglfw.so.3.4
+build AnimationRasteriser: CXX_EXECUTABLE_LINKER__AnimationRasteriser_ CMakeFiles/AnimationRasteriser.dir/src/animation/Timeline.cpp.o CMakeFiles/AnimationRasteriser.dir/src/main.cpp.o CMakeFiles/AnimationRasteriser.dir/src/renderer/Renderer.cpp.o CMakeFiles/AnimationRasteriser.dir/src/renderer/Shader.cpp.o CMakeFiles/AnimationRasteriser.dir/src/scene/Scene.cpp.o CMakeFiles/AnimationRasteriser.dir/src/scene/Shapes.cpp.o CMakeFiles/AnimationRasteriser.dir/external/glad/src/glad.c.o | /usr/lib64/libglfw.so.3.4
   DEP_FILE = CMakeFiles/AnimationRasteriser.dir/link.d
   LINK_FLAGS = -Wl,--dependency-file=CMakeFiles/AnimationRasteriser.dir/link.d
   LINK_LIBRARIES = /usr/lib64/libglfw.so.3.4  -lgcc_s_asneeded  -lgcc_s_asneeded
