@@ -54,14 +54,13 @@ Scene::Scene() : timeline(objects), renderer() {
     ellipse2->stroke.width = 0.15f;
     addObject(ellipse2);
     
-    timeline.addAnimation({
-        AnimationType::Move,
+    timeline.addAnimation(new MoveAnimation(
         0,
         0.0f,
         2.0f,
-        glm::vec4(10.0f, 0.0f, 0.0f, 0.0f),
-        glm::vec4(10.0f, 5.0f, 0.0f, 0.0f)
-    });
+        glm::vec3(10.0f, 0.0f, 0.0f),
+        glm::vec3(10.0f, 5.0f, 0.0f)
+    ));
 }
 
 void Scene::update(float deltaTime) {
