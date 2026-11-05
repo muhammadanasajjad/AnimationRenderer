@@ -4,12 +4,12 @@
 Scene::Scene() : timeline(objects), renderer() {
     Rectangle* rectangle1 = new Rectangle(
         6.0f,
-        3.0f,
+        10.0f,
         glm::vec3(10.0f, 0.0f, 0.0f),
         glm::vec3(0.0f, glm::radians(45.0f), 0.0f)
     );
     rectangle1->fill.enabled = true;
-    rectangle1->fill.material.albedo = glm::vec4(1.0f, 0.2f, 0.2f, 1.0f);
+    rectangle1->fill.material.albedo = glm::vec4(1.0f, 0.2f, 0.2f, 0.5f);
     rectangle1->stroke.enabled = true;
     rectangle1->stroke.material.albedo = glm::vec4(1.0f);
     rectangle1->stroke.width = 0.1f;
@@ -19,7 +19,7 @@ Scene::Scene() : timeline(objects), renderer() {
         4.0f,
         4.0f,
         glm::vec3(10.0f, 5.0f, 0.0f),
-        glm::vec3(0.0f, glm::radians(20.0f), 0.0f)
+        glm::vec3(0.0f, glm::radians(90.0f), 0.0f)
     );
     rectangle2->fill.enabled = false;
     rectangle2->stroke.enabled = true;
