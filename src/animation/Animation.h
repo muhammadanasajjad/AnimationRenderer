@@ -64,3 +64,25 @@ private:
     glm::vec3 startRotation;
     glm::vec3 endRotation;
 };
+
+
+class FadeAnimation : public Animation {
+public:
+
+    FadeAnimation(int objectIndex, float startTime, float duration, float startOpacity, float endOpacity)
+        : Animation(objectIndex, startTime, duration), startOpacity(startOpacity), endOpacity(endOpacity) {}
+
+    void execute(Object* object, float progress) override {
+        float value = glm::mix(
+            startOpacity,
+            endOpacity,
+            progress
+        );
+        
+        object->colourMask.w = value;
+    }
+
+private:
+    float startOpacity;
+    float endOpacity;
+};

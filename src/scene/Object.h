@@ -9,6 +9,8 @@
 class Object {
 public:
     Transform transform;
+    
+    glm::vec4 colourMask = glm::vec4(1, 1, 1, 1);
 
     virtual std::vector<Triangle> getTriangles(int materialCount) = 0;
     virtual std::vector<Material> getMaterials() = 0;

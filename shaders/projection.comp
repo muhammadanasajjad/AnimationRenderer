@@ -43,9 +43,11 @@ void main() {
     float depthB = dot(triangles[index].b.xyz - cameraPosition, cameraForward);
     float depthC = dot(triangles[index].c.xyz - cameraPosition, cameraForward);
     triangles[index].a.xy = projectPoint(triangles[index].a.xyz);
-    triangles[index].a.z = depthA;
+    // subtract so that triangles that are on the same plane dont have floating point imprecision errors
+    // TODO: add order to objects not just using index?
+    triangles[index].a.z = depthA - index * 1e-5;
     triangles[index].b.xy = projectPoint(triangles[index].b.xyz);
-    triangles[index].b.z = depthB;
+    triangles[index].b.z = depthB - index * 1e-5;
     triangles[index].c.xy = projectPoint(triangles[index].c.xyz);
-    triangles[index].c.z = depthC;
+    triangles[index].c.z = depthC - index * 1e-5;
 }

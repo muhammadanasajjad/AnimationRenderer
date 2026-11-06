@@ -52,6 +52,9 @@ void main() {
 
     for (int i = 0; i < triangleCount; i++) {
         Triangle tri = triangles[i];
+        vec4 albedo = materials[int(tri.a.a)].albedo;
+
+        if (albedo.a <= 0.0) continue;
 
         vec2 projected1 = tri.a.xy;
         vec2 projected2 = tri.b.xy;
@@ -97,11 +100,11 @@ void main() {
         }
 
         depths[insertIndex] = depth;
-        albedos[insertIndex] = materials[int(tri.a.a)].albedo;
+        albedos[insertIndex] = albedo;
 
         depthCount = newCount;
     }
-
+    
     for (int i = depthCount - 1; i >= 0; i--) {
         vec4 albedo = albedos[i];
 

@@ -34,12 +34,10 @@ std::vector<Triangle> strokeOutline(const std::vector<glm::vec3>& outline, float
     if (glm::length(normal) < 1e-6f) return triangles;
     normal = glm::normalize(normal);
 
-    float halfWidth = width / 2.0f;
     float maximumOffsetScale = 4.0f;
 
     std::vector<glm::vec3> outerPoints(outlineSize);
-    std::vector<glm::vec3> innerPoints(outlineSize);
-
+    
     for (int i = 0; i < outlineSize; i++) {
         glm::vec3 previous = outline[(i + outlineSize - 1) % outlineSize];
         glm::vec3 current = outline[i];
@@ -52,44 +50,58 @@ std::vector<Triangle> strokeOutline(const std::vector<glm::vec3>& outline, float
         float nextLength = glm::length(nextDirection);
 
         if (previousLength < 1e-6f && nextLength < 1e-6f) {
-            outerPoints[i] = innerPoints[i] = current;
+            outerPoints[i] = current;
             continue;
         }
 
         previousDirection = previousLength < 1e-6f ? nextDirection / nextLength : previousDirection / previousLength;
         nextDirection = nextLength < 1e-6f ? previousDirection : nextDirection / nextLength;
 
-        glm::vec3 previousPerpendicular = glm::cross(normal, previousDirection);
-        glm::vec3 nextPerpendicular = glm::cross(normal, nextDirection);
+        float winding = 0.0f;
+
+        for (int i = 0; i < outlineSize; i++) {
+            winding += glm::dot(
+                normal,
+                glm::cross(outline[i], outline[(i + 1) % outlineSize])
+            );
+        }
+
+        float direction = winding > 0.0f ? -1.0f : 1.0f;
+
+        glm::vec3 previousPerpendicular = direction * glm::cross(normal, previousDirection);
+        glm::vec3 nextPerpendicular = direction * glm::cross(normal, nextDirection);
 
         glm::vec3 offsetDirection = previousPerpendicular + nextPerpendicular;
         glm::vec3 offset;
 
         if (glm::length(offsetDirection) < 1e-6f) {
-            offset = previousPerpendicular * halfWidth;
+            offset = previousPerpendicular * width;
         } else {
             offsetDirection = glm::normalize(offsetDirection);
 
             float offsetScale = 1.0f / glm::max(glm::dot(offsetDirection, previousPerpendicular), 1e-3f);
             offsetScale = glm::min(offsetScale, maximumOffsetScale);
 
-            offset = offsetDirection * halfWidth * offsetScale;
+            offset = offsetDirection * width * offsetScale;
         }
 
         outerPoints[i] = current + offset;
-        innerPoints[i] = current - offset;
     }
 
     for (int i = 0; i < outlineSize; i++) {
         int next = (i + 1) % outlineSize;
 
-        glm::vec4 outerCurrent(outerPoints[i], materialIndex);
-        glm::vec4 innerCurrent(innerPoints[i], 0);
-        glm::vec4 outerNext(outerPoints[next], 0);
-        glm::vec4 innerNext(innerPoints[next], 0);
+        triangles.push_back({
+            glm::vec4(outline[i], materialIndex),
+            glm::vec4(outerPoints[i], 0),
+            glm::vec4(outerPoints[next], 0)
+        });
 
-        triangles.push_back({outerCurrent, innerCurrent, outerNext});
-        triangles.push_back({glm::vec4(innerPoints[i], materialIndex), innerNext, glm::vec4(outerPoints[next], 0)});
+        triangles.push_back({
+            glm::vec4(outline[i], materialIndex),
+            glm::vec4(outerPoints[next], 0),
+            glm::vec4(outline[next], 0)
+        });
     }
 
     return triangles;
@@ -98,8 +110,17 @@ std::vector<Triangle> strokeOutline(const std::vector<glm::vec3>& outline, float
 std::vector<Material> Shape::getMaterials() {
     std::vector<Material> materials;
 
-    if (fill.enabled) materials.push_back(fill.material);
-    if (stroke.enabled) materials.push_back(stroke.material);
+    if (fill.enabled) {
+        Material material = fill.material;
+        material.albedo *= colourMask;
+        materials.push_back(material);
+    }
+
+    if (stroke.enabled) {
+        Material material = stroke.material;
+        material.albedo *= colourMask;
+        materials.push_back(material);
+    }
 
     return materials;
 }
