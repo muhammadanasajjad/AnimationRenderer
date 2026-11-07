@@ -126,10 +126,13 @@ std::vector<Material> Shape::getMaterials() {
 }
 
 std::vector<Triangle> Shape::getTriangles(int materialCount) {
+    if (visibleOutline.size() == 0) {
+        visibleOutline = outline;
+    }
     std::vector<Triangle> triangles;
     std::vector<glm::vec3> transformedOutline;
 
-    for (const auto& point : outline) {
+    for (const auto& point : visibleOutline) {
         transformedOutline.push_back(transform.apply(point));
     }
 
@@ -155,4 +158,52 @@ std::vector<Triangle> Shape::getTriangles(int materialCount) {
     }
 
     return triangles;
+}
+
+void Shape::animateDraw(float progress) {
+    visibleOutline = {};
+    if (outline.size() <= 1) return;
+    
+    float length = 0;
+    for (int i = 1; i < outline.size(); i++) {
+        glm::vec3 previousPoint = outline[i-1];
+        glm::vec3 point = outline[i];
+        
+        length += glm::distance(point, previousPoint);
+    }
+    length += glm::distance(outline[0], outline[outline.size() - 1]);
+    
+    if (length == 0) return;
+    
+    float desiredLength = length * progress;
+    float lengthSoFar = 0;
+    for (int i = 1; i < outline.size(); i++) {
+        glm::vec3 previousPoint = outline[i-1];
+        glm::vec3 point = outline[i];
+        
+        float distance = glm::distance(point, previousPoint);
+        
+        if (lengthSoFar > desiredLength) break;
+        if (lengthSoFar + distance <= desiredLength) {
+            visibleOutline.push_back(point);
+        }
+        if (lengthSoFar + distance > desiredLength) {
+            float progressInLine = (desiredLength - lengthSoFar) / distance;
+            glm::vec3 interpolatedPoint = glm::mix(previousPoint, point, progressInLine);
+            visibleOutline.push_back(interpolatedPoint);
+        }
+        
+        lengthSoFar += distance;
+    }
+    
+    float lastDistance = glm::distance(outline[0], outline[outline.size() - 1]);
+    if (lengthSoFar > desiredLength) return;
+    if (lengthSoFar + lastDistance <= desiredLength) {
+        visibleOutline.push_back(outline[0]);
+    }
+    if (lengthSoFar + lastDistance > desiredLength) {
+        float progressInLine = (desiredLength - lengthSoFar) / lastDistance;
+        glm::vec3 interpolatedPoint = glm::mix(outline[outline.size() - 1], outline[0], progressInLine);
+        visibleOutline.push_back(interpolatedPoint);
+    }
 }

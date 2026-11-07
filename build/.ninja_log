@@ -1,11 +1,11 @@
 # ninja log v7
-1	14	1793995190102521995	/home/muhammadanasajjad/Documents/Programming/AnimationRasteriser/build/CMakeFiles/cmake.verify_globs	4979da7214cda87a
+1	13	1794083413258266311	/home/muhammadanasajjad/Documents/Programming/AnimationRasteriser/build/CMakeFiles/cmake.verify_globs	4979da7214cda87a
 16	368	1793994995430145712	CMakeFiles/AnimationRasteriser.dir/external/glad/src/glad.c.o	761b470236d6342d
-14	1361	1793994995427058228	CMakeFiles/AnimationRasteriser.dir/src/animation/Timeline.cpp.o	38d1655bc0d14fb4
+15	810	1794079846706718115	CMakeFiles/AnimationRasteriser.dir/src/animation/Timeline.cpp.o	38d1655bc0d14fb4
 15	1423	1793994995429159980	CMakeFiles/AnimationRasteriser.dir/src/renderer/Renderer.cpp.o	abd9e561c182d033
-15	895	1793995190116522028	CMakeFiles/AnimationRasteriser.dir/src/scene/Shapes.cpp.o	135bcedfd638c7de
-15	1593	1793994995428625053	CMakeFiles/AnimationRasteriser.dir/src/main.cpp.o	de10a0cc227197c8
-15	1604	1793994995429661336	CMakeFiles/AnimationRasteriser.dir/src/scene/Scene.cpp.o	7f087e49c4535dc2
+14	841	1794083413271266332	CMakeFiles/AnimationRasteriser.dir/src/scene/Shapes.cpp.o	135bcedfd638c7de
+15	1030	1794079846708095197	CMakeFiles/AnimationRasteriser.dir/src/main.cpp.o	de10a0cc227197c8
+15	990	1794083369578194862	CMakeFiles/AnimationRasteriser.dir/src/scene/Scene.cpp.o	7f087e49c4535dc2
 15	1673	1793994995429428690	CMakeFiles/AnimationRasteriser.dir/src/renderer/Shader.cpp.o	938bed4f913f372f
-895	989	1793995190996524121	AnimationRasteriser	e670d1c2c48becc7
-1	14	1793995201701549579	/home/muhammadanasajjad/Documents/Programming/AnimationRasteriser/build/CMakeFiles/cmake.verify_globs	4979da7214cda87a
+841	948	1794083414098267685	AnimationRasteriser	e670d1c2c48becc7
+1	13	1794083427200289115	/home/muhammadanasajjad/Documents/Programming/AnimationRasteriser/build/CMakeFiles/cmake.verify_globs	4979da7214cda87a

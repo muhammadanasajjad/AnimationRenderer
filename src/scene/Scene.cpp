@@ -56,18 +56,12 @@ Scene::Scene() : timeline(objects), renderer() {
     
     timeline.addAnimation(new MoveAnimation(
         0,
-        0.0f,
+        1.0f,
         1.0f,
         glm::vec3(10.0f, 0.0f, 0.0f),
         glm::vec3(10.0f, 5.0f, 0.0f)
     ));
-    timeline.addAnimation(new FadeAnimation(
-        1,
-        1.0f,
-        1.0f,
-        1,
-        0
-    ));
+    timeline.addAnimation(new DrawAnimation(3, 0.0f, 1.0f));
 }
 
 void Scene::update(float deltaTime) {

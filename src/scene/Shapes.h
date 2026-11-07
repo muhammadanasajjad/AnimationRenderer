@@ -12,8 +12,11 @@ public:
 
     std::vector<Triangle> getTriangles(int materialCount) override;
     std::vector<Material> getMaterials() override;
+    
+    void animateDraw(float progress) override;
 
 private:
+    std::vector<glm::vec3> visibleOutline;
     int flag = 0;
 };
 

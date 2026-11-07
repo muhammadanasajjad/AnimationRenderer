@@ -14,4 +14,6 @@ public:
 
     virtual std::vector<Triangle> getTriangles(int materialCount) = 0;
     virtual std::vector<Material> getMaterials() = 0;
+    
+    virtual void animateDraw(float progress) = 0;
 };
