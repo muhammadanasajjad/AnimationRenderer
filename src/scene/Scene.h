@@ -1,5 +1,6 @@
 #pragma once
 
+#include <memory>
 #include <vector>
 
 #include "Triangle.h"
@@ -12,7 +13,7 @@ class Scene {
 public:
     Scene();
 
-    void addObject(Object* object);
+    void addObject(std::unique_ptr<Object> object);
     void addTriangle(const Triangle& triangle);
     void addMaterial(const Material& material);
     int getMaterialCount();
@@ -21,7 +22,7 @@ public:
     void clearTriangles();
 
 private:
-    std::vector<Object*> objects;
+    std::vector<std::unique_ptr<Object>> objects;
     std::vector<Triangle> triangles;
     std::vector<Material> materials;
     Renderer renderer;

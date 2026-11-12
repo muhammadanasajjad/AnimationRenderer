@@ -1,5 +1,7 @@
 #include "Parser.h"
 
+#include <iostream>
+
 Parser::Parser(std::vector<Token> tokens) : tokens(tokens) {
     
 }
@@ -17,14 +19,16 @@ Token Parser::peek() {
 
 Token Parser::consume(std::string expected) {
     if (tokens[pos].value != expected) {
-        return; // throw error
+        std::cerr << "Expected " << expected << " got " << tokens[pos].value << std::endl;
     }
     return tokens[pos++];
 }
 
 Token Parser::consumeType(TokenType expected) {
     if (tokens[pos].type != expected) {
-        return; // throw error
+        // std::cerr << "Expected " << expected << " type got " << tokens[pos].type << " type" << std::endl;
     }
     return tokens[pos++];
 }
+
+

@@ -6,9 +6,66 @@ Tokeniser::Tokeniser(std::string& source) : source(source) {
     tokenRules = {
         { std::regex("\\n+"), TokenType::LineBreak },
         { std::regex(" +"), TokenType::WhiteSpace },
+        
+        { std::regex(":"), TokenType::Colon },
+        { std::regex("\\{"), TokenType::OpenCurlyBrace },
+        { std::regex("\\}"), TokenType::CloseCurlyBrace },
+        { std::regex("\\("), TokenType::OpenParenthesis },
+        { std::regex("\\)"), TokenType::CloseParenthesis },
+        { std::regex(","), TokenType::Comma },
+        { std::regex("="), TokenType::Equals },
+        { std::regex("\\^"), TokenType::Caret },
+        { std::regex("\\*"), TokenType::Asterisk },
+        { std::regex("/"), TokenType::ForwardSlash },
+        { std::regex("\\+"), TokenType::Plus },
+        { std::regex("-"), TokenType::Minus },
+        
+        { std::regex("[0-9]+"), TokenType::IntegerLiteral },
+        { std::regex("[0-9]+\\.[0-9]+"), TokenType::FloatLiteral },
+        { 
+            std::regex("\"[^\\n]*\""), // start with " any character except quotation and new line 0+ then end with "
+            TokenType::StringLiteral
+        },
         { std::regex("[A-Z_]+"), TokenType::ObjectType },
         { std::regex("[a-zA-Z_0-9]+"), TokenType::Identifier }
     };
+}
+
+
+
+void debugToken(const Token& token) {
+    const char* typeNames[] = {
+        "LineBreak",
+        "WhiteSpace",
+        "Colon",
+        "OpenCurlyBrace",
+        "CloseCurlyBrace",
+        "OpenParenthesis",
+        "CloseParenthesis",
+        "Comma",
+        "Equals",
+        "Caret",
+        "Asterisk",
+        "ForwardSlash",
+        "Plus",
+        "Minus",
+        "IntegerLiteral",
+        "FloatLiteral",
+        "StringLiteral",
+        "ObjectType",
+        "Identifier",
+        "FileEnd"
+    };
+
+    std::cout
+        << "Token { "
+        << "type: " << typeNames[token.type]
+        << ", value: \"" << token.value << "\""
+        // << ", line: " << token.lineNumber
+        // << ", column: " << token.columnNumber
+        // << ", pos: " << token.pos
+        << " }"
+        << std::endl;
 }
 
 void Tokeniser::tokenise() {
@@ -46,14 +103,7 @@ void Tokeniser::tokenise() {
             pos += matchInfo.length();
             
             Token token = tokens[tokens.size() - 1];
-            const char* typeName = (token.type == ObjectType) ? "objectType" : (token.type == WhiteSpace) ? "whitespace" : "identifier";
-            std::cout << "Token{"
-                << "type=" << typeName
-                << ", value=\"" << token.value << "\""
-                << ", lineNumber=" << token.lineNumber
-                << ", columnNumber=" << token.columnNumber
-                << ", pos=" << token.pos
-                << "}" << std::endl;
+            debugToken(token);
             
             if (token.type != LineBreak) columnNumber += matchInfo.length();
             else {
@@ -62,8 +112,10 @@ void Tokeniser::tokenise() {
             }
             break;
         }
-        if (!matched) { 
-            // throw error token is invalid
+        if (!matched) {
+            // TODO: add actual error handling
+            std::cerr << "token didn't match" << std::endl;
+            break;
         }
     }
     

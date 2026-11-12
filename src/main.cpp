@@ -84,7 +84,37 @@ int main() {
     // glfwDestroyWindow(window);
     // glfwTerminate();
     
-    std::string testSource = "CUBE test   \n\n fadeIn";
+    std::string testSource = R"(
+PRELOAD: {
+  "test.irt"
+  "some.ttf" as mainFont
+  "some.obj" as cuboid, "sphere.obj" as sphere
+}
+
+SETTINGS : {
+  resolution: 1920*1080
+  frameRate: 60fps
+}
+
+SCENE someScene: {
+  INTERPOLATION customInterp: {
+    function: f(t) = 1-e^(-6*t)*cos(180*10*t/pi)
+  }
+  CUBE cube: { size: 2, position: {0, 1, 1} }
+  fadeIn cube over 100ms using easeInOut
+  wait
+  SPHERE someName: { radius: 10 }
+  rotate cube { x: 10deg, y: -30deg } over 150ms using customInterp
+  show someName, edit someName { radius: 20 } over 100ms using easeIn
+  wait, wait 100ms
+  TEXT helloText: { text: "Hello!" }
+  fadeOut cube over 100ms
+  fadeOut someName over 100ms
+  fadeIn helloText over 300ms
+  wait
+}
+play someScene
+)";
     
     std::cout << testSource << std::endl;
     

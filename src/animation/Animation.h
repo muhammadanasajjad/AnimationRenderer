@@ -20,6 +20,8 @@ public:
     Animation(int objectIndex, float startTime, float duration)
         : objectIndex(objectIndex), startTime(startTime), duration(duration) {}
     
+    virtual ~Animation() = default;
+
     virtual void execute(Object* object, float progress) = 0;
 };
 
