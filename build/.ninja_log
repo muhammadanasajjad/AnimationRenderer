@@ -1,11 +1,13 @@
 # ninja log v7
-1	13	1794083413258266311	/home/muhammadanasajjad/Documents/Programming/AnimationRasteriser/build/CMakeFiles/cmake.verify_globs	4979da7214cda87a
+1	13	1794522929337898356	/home/muhammadanasajjad/Documents/Programming/AnimationRasteriser/build/CMakeFiles/cmake.verify_globs	4979da7214cda87a
 16	368	1793994995430145712	CMakeFiles/AnimationRasteriser.dir/external/glad/src/glad.c.o	761b470236d6342d
-15	810	1794079846706718115	CMakeFiles/AnimationRasteriser.dir/src/animation/Timeline.cpp.o	38d1655bc0d14fb4
+17	1281	1794519918709971976	CMakeFiles/AnimationRasteriser.dir/src/animation/Timeline.cpp.o	38d1655bc0d14fb4
 15	1423	1793994995429159980	CMakeFiles/AnimationRasteriser.dir/src/renderer/Renderer.cpp.o	abd9e561c182d033
-14	841	1794083413271266332	CMakeFiles/AnimationRasteriser.dir/src/scene/Shapes.cpp.o	135bcedfd638c7de
-15	1030	1794079846708095197	CMakeFiles/AnimationRasteriser.dir/src/main.cpp.o	de10a0cc227197c8
-15	990	1794083369578194862	CMakeFiles/AnimationRasteriser.dir/src/scene/Scene.cpp.o	7f087e49c4535dc2
+16	1548	1794519543926990050	CMakeFiles/AnimationRasteriser.dir/src/scene/Shapes.cpp.o	135bcedfd638c7de
+18	1381	1794522727098682534	CMakeFiles/AnimationRasteriser.dir/src/main.cpp.o	de10a0cc227197c8
+17	1659	1794519918711152683	CMakeFiles/AnimationRasteriser.dir/src/scene/Scene.cpp.o	7f087e49c4535dc2
 15	1673	1793994995429428690	CMakeFiles/AnimationRasteriser.dir/src/renderer/Shader.cpp.o	938bed4f913f372f
-841	948	1794083414098267685	AnimationRasteriser	e670d1c2c48becc7
-1	13	1794083427200289115	/home/muhammadanasajjad/Documents/Programming/AnimationRasteriser/build/CMakeFiles/cmake.verify_globs	4979da7214cda87a
+2873	3018	1794522905192843818	AnimationRasteriser	b453d1fac81150bf
+15	2873	1794522902334837362	CMakeFiles/AnimationRasteriser.dir/src/language/Tokeniser.cpp.o	68f44e30b84bc9d8
+17	972	1794522727097441562	CMakeFiles/AnimationRasteriser.dir/src/language/Parser.cpp.o	56fbce0728e53d53
+1	18	1794522956145958898	/home/muhammadanasajjad/Documents/Programming/AnimationRasteriser/build/CMakeFiles/cmake.verify_globs	4979da7214cda87a

@@ -5,6 +5,8 @@
 file(GLOB_RECURSE NEW_GLOB LIST_DIRECTORIES false "/home/muhammadanasajjad/Documents/Programming/AnimationRasteriser/src/*.cpp")
 set(OLD_GLOB
   "/home/muhammadanasajjad/Documents/Programming/AnimationRasteriser/src/animation/Timeline.cpp"
+  "/home/muhammadanasajjad/Documents/Programming/AnimationRasteriser/src/language/Parser.cpp"
+  "/home/muhammadanasajjad/Documents/Programming/AnimationRasteriser/src/language/Tokeniser.cpp"
   "/home/muhammadanasajjad/Documents/Programming/AnimationRasteriser/src/main.cpp"
   "/home/muhammadanasajjad/Documents/Programming/AnimationRasteriser/src/renderer/Renderer.cpp"
   "/home/muhammadanasajjad/Documents/Programming/AnimationRasteriser/src/renderer/Shader.cpp"

@@ -6,6 +6,8 @@
 
 #include "scene/Scene.h"
 #include "language/Tokeniser.h"
+#include "language/Parser.h"
+#include "language/ASTPrinter.h"
 
 int main() {
     // if (!glfwInit()) {
@@ -85,15 +87,15 @@ int main() {
     // glfwTerminate();
     
     std::string testSource = R"(
+SETTINGS : {
+  resolution: 1920*1080
+  frameRate: 60fps
+}
+
 PRELOAD: {
   "test.irt"
   "some.ttf" as mainFont
   "some.obj" as cuboid, "sphere.obj" as sphere
-}
-
-SETTINGS : {
-  resolution: 1920*1080
-  frameRate: 60fps
 }
 
 SCENE someScene: {
@@ -120,7 +122,11 @@ play someScene
     
     Tokeniser tokeniser = Tokeniser(testSource);
     tokeniser.tokenise();
+    
+    Parser parser = Parser(tokeniser.getTokens());
+    auto program = parser.parse();
 
+    ASTPrinter::print(program.get());
     return 0;
 }
 

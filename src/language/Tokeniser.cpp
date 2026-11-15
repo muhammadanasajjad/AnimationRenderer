@@ -23,7 +23,7 @@ Tokeniser::Tokeniser(std::string& source) : source(source) {
         { std::regex("[0-9]+"), TokenType::IntegerLiteral },
         { std::regex("[0-9]+\\.[0-9]+"), TokenType::FloatLiteral },
         { 
-            std::regex("\"[^\\n]*\""), // start with " any character except quotation and new line 0+ then end with "
+            std::regex("\"[^\"\\n]*\""), // start with " any character except quotation and new line 0+ then end with "
             TokenType::StringLiteral
         },
         { std::regex("[A-Z_]+"), TokenType::ObjectType },
@@ -93,6 +93,10 @@ void Tokeniser::tokenise() {
             matched = true;
             
             std::string matchingSubstring = matchInfo.str();
+
+            if (rule.type == TokenType::StringLiteral)
+                matchingSubstring = matchingSubstring.substr(1, matchingSubstring.length() - 2);
+
             tokens.push_back(Token(
                 rule.type, 
                 matchingSubstring, 
@@ -110,6 +114,11 @@ void Tokeniser::tokenise() {
                 columnNumber = 1;
                 lineNumber += matchInfo.length();
             }
+            
+            if (token.type == WhiteSpace) {
+                tokens.pop_back();
+            }
+            
             break;
         }
         if (!matched) {
