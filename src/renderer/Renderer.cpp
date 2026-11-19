@@ -19,7 +19,7 @@ Renderer::Renderer() :
     std::vector<Triangle> triangles = {};
     std::vector<Material> materials = {};
     
-    projectionShader.setVec3("cameraPosition", glm::vec3(0.0f, 0.0f, 0.0f));
+    projectionShader.setVec3("cameraPosition", glm::vec3(-15.0f, 0.0f, 0.0f));
     projectionShader.setVec3("cameraForward", glm::vec3(1.0f, 0.0f, 0.0f));
     projectionShader.setVec3("cameraUp", glm::vec3(0.0f, 1.0f, 0.0f));
     projectionShader.setVec3("cameraRight", glm::cross(

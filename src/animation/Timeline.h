@@ -10,6 +10,7 @@ public:
     explicit Timeline(std::vector<std::unique_ptr<Object>>& objects);
 
     void addAnimation(std::unique_ptr<Animation> animation);
+    void clear();
     void update(float deltaTime);
     void seek(float time);
     void reset();

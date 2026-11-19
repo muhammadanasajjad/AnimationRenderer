@@ -10,6 +10,11 @@ void Timeline::addAnimation(std::unique_ptr<Animation> animation) {
     animations.push_back(std::move(animation));
 }
 
+void Timeline::clear() {
+    animations.clear();
+    reset();
+}
+
 void Timeline::update(float deltaTime) {
     currentTime += deltaTime;
     seek(currentTime);

@@ -13,6 +13,7 @@ class Scene {
 public:
     Scene();
 
+    std::vector<std::unique_ptr<Object>>& getObjects();
     void addObject(std::unique_ptr<Object> object);
     void addTriangle(const Triangle& triangle);
     void addMaterial(const Material& material);

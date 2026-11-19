@@ -10,7 +10,7 @@ class Object {
 public:
     Transform transform;
     
-    glm::vec4 colourMask = glm::vec4(1, 1, 1, 1);
+    glm::vec4 colourMask = glm::vec4(1, 1, 1, 0);
 
     virtual ~Object() = default;
 
