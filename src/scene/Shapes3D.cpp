@@ -11,7 +11,7 @@ void Shapes3D::addTriangle(const glm::vec3& a, const glm::vec3& b, const glm::ve
 std::vector<Triangle> Shapes3D::getTriangles(int materialCount) {
     std::vector<Triangle> triangles;
 
-    if (!fill.enabled) {
+    if (!hasVisibleFill()) {
         return triangles;
     }
 

@@ -12,6 +12,10 @@ void Scene::update(float deltaTime) {
     materials = {};
 
     for (const std::unique_ptr<Object>& object : objects) {
+        if (object->colourMask.a <= 0.0f) {
+            continue;
+        }
+
         std::vector<Triangle> objectTriangles = object->getTriangles(materials.size());
         std::vector<Material> objectMaterials = object->getMaterials();
 

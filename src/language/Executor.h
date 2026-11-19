@@ -44,12 +44,18 @@ private:
 
     Objects& objects;
     std::vector<SavedObjectState> savedStates;
+    std::vector<SavedObjectState> baseStates;
+    std::vector<SceneDeclarationNode*> scenePlaylist;
+    std::size_t nextSceneIndex = 0;
+    std::size_t baseObjectCount = 0;
     std::unordered_map<std::string, int> objectIndices;
     std::unordered_map<std::string, InterpolationFunction> interpolations;
     std::unique_ptr<Timeline> timeline;
 
     float currentTime = 0.0f;
     float pendingEndTime = 0.0f;
+    float playbackTime = 0.0f;
+    float activeSceneDuration = 0.0f;
 
     void executeObjectDeclaration(ObjectDeclarationNode* node);
     void executeFadeAction(FadeActionNode* node);
@@ -60,6 +66,8 @@ private:
     void executeEditAction(EditActionNode* node);
     void executeWaitAction(WaitActionNode* node);
     void executeInterpolationDeclaration(InterpolationDeclarationNode* node);
+    void startNextScene();
+    void restartPlaylist();
 
     float evaluateNumber(ExpressionNode* node, Variables* variables = nullptr);
     float evaluateDuration(ExpressionNode* node);

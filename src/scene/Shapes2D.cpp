@@ -148,10 +148,18 @@ std::vector<Triangle> strokeOutline(const std::vector<glm::vec3>& outline, float
 }
 
 std::vector<Triangle> Shapes2D::getTriangles(int materialCount) {
+    bool visibleFill = hasVisibleFill();
+    bool visibleStroke = hasVisibleStroke();
+
+    std::vector<Triangle> triangles;
+
+    if (!visibleFill && !visibleStroke) {
+        return triangles;
+    }
+
     if (visibleOutline.size() == 0) {
         visibleOutline = outline;
     }
-    std::vector<Triangle> triangles;
     std::vector<glm::vec3> transformedOutline;
 
     for (const auto& point : visibleOutline) {
@@ -159,9 +167,9 @@ std::vector<Triangle> Shapes2D::getTriangles(int materialCount) {
     }
 
     int fillMaterialIndex = materialCount;
-    int strokeMaterialIndex = materialCount + (fill.enabled ? 1 : 0);
+    int strokeMaterialIndex = materialCount + (visibleFill ? 1 : 0);
 
-    if (fill.enabled) {
+    if (visibleFill) {
         std::vector<Triangle> fillTriangles =
             triangulate(transformedOutline, fillMaterialIndex, flag);
 
@@ -170,7 +178,7 @@ std::vector<Triangle> Shapes2D::getTriangles(int materialCount) {
         }
     }
 
-    if (stroke.enabled) {
+    if (visibleStroke) {
         std::vector<Triangle> strokeTriangles =
             strokeOutline(transformedOutline, stroke.width, strokeMaterialIndex);
 

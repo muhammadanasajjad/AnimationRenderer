@@ -1,7 +1,4 @@
-#include <iostream>
-#include <fstream>
-#include <sstream>
-#include <string>
+#include <algorithm>
 #include <glad/glad.h>
 #include <glm/glm.hpp>
 #include <vector>
@@ -10,15 +7,15 @@
 #include "../scene/Material.h"
 #include "../scene/Triangle.h"
 
-Renderer::Renderer() : 
+Renderer::Renderer() :
     projectionShader("shaders/projection.comp"),
+    countShader("shaders/count.glsl"),
+    prefixShader("shaders/prefix.glsl"),
+    fillShader("shaders/fill.glsl"),
     screenShader("shaders/screen.vert", "shaders/screen.frag")
-{   
+{
     projectionShader.use();
-    
-    std::vector<Triangle> triangles = {};
-    std::vector<Material> materials = {};
-    
+
     projectionShader.setVec3("cameraPosition", glm::vec3(-15.0f, 0.0f, 0.0f));
     projectionShader.setVec3("cameraForward", glm::vec3(1.0f, 0.0f, 0.0f));
     projectionShader.setVec3("cameraUp", glm::vec3(0.0f, 1.0f, 0.0f));
@@ -26,34 +23,25 @@ Renderer::Renderer() :
         glm::vec3(0.0f, 1.0f, 0.0f),
         glm::vec3(1.0f, 0.0f, 0.0f)
     ));
-    projectionShader.setUInt("triangleCount", triangles.size());
-    
+    projectionShader.setUInt("triangleCount", 0);
+
     glGenBuffers(1, &triangleSSBO);
     glGenBuffers(1, &materialSSBO);
-    
-    glBindBuffer(GL_SHADER_STORAGE_BUFFER, triangleSSBO);
-    glBufferData(GL_SHADER_STORAGE_BUFFER, triangles.size() * sizeof(Triangle), triangles.data(), GL_DYNAMIC_DRAW);
+    glGenBuffers(1, &tileCountSSBO);
+    glGenBuffers(1, &tileOffsetSSBO);
+    glGenBuffers(1, &tileCounterSSBO);
+    glGenBuffers(1, &tileTriangleSSBO);
 
-    glBindBuffer(GL_SHADER_STORAGE_BUFFER, materialSSBO);
-    glBufferData(GL_SHADER_STORAGE_BUFFER, materials.size() * sizeof(Material), materials.data(), GL_DYNAMIC_DRAW);
-    // TODO: update the binding numbers later to make a sensical order
-    glBindBufferBase(GL_SHADER_STORAGE_BUFFER, 0, triangleSSBO);
-    glBindBufferBase(GL_SHADER_STORAGE_BUFFER, 1, materialSSBO);
-    
-    glDispatchCompute((triangles.size() + 255) / 256, 1, 1);
-    glMemoryBarrier(GL_SHADER_STORAGE_BARRIER_BIT);
-    
-    screenShader.use();
     float vertices[] = {
         -1.0f, -1.0f, 0.0f,
         -1.0f,  1.0f, 0.0f,
          1.0f, -1.0f, 0.0f,
          1.0f,  1.0f, 0.0f
     };
-    
+
     glGenVertexArrays(1, &VAO);
     glBindVertexArray(VAO);
-    
+
     glGenBuffers(1, &VBO);
     glBindBuffer(GL_ARRAY_BUFFER, VBO);
     glBufferData(GL_ARRAY_BUFFER, sizeof(vertices), vertices, GL_STATIC_DRAW);
@@ -64,46 +52,97 @@ Renderer::Renderer() :
     glBindVertexArray(0);
 }
 
+void Renderer::ensureBufferSize(unsigned int& buffer, std::size_t& capacity, std::size_t bytes) {
+    std::size_t allocation = std::max<std::size_t>(bytes, 4);
+
+    if (allocation <= capacity) {
+        return;
+    }
+
+    glBindBuffer(GL_SHADER_STORAGE_BUFFER, buffer);
+    glBufferData(GL_SHADER_STORAGE_BUFFER, allocation, nullptr, GL_DYNAMIC_DRAW);
+    capacity = allocation;
+}
 
 void Renderer::render(std::vector<Triangle>& triangles, std::vector<Material>& materials) {
-    projectionShader.use();
-
-    projectionShader.setUInt("triangleCount", triangles.size());
-
-    glBindBuffer(GL_SHADER_STORAGE_BUFFER, triangleSSBO);
-    glBufferData(
-        GL_SHADER_STORAGE_BUFFER,
-        triangles.size() * sizeof(Triangle),
-        triangles.data(),
-        GL_DYNAMIC_DRAW
+    const int triangleCount = static_cast<int>(triangles.size());
+    const int tileCount = TileRows * TileColumns;
+    const std::size_t triangleBytes = triangles.size() * sizeof(Triangle);
+    const std::size_t materialBytes = materials.size() * sizeof(Material);
+    const std::size_t tileIntBytes = static_cast<std::size_t>(tileCount) * sizeof(int);
+    const std::size_t tileOffsetBytes = (static_cast<std::size_t>(tileCount) + 1) * sizeof(int);
+    const std::size_t tileTriangleBytes = std::max<std::size_t>(
+        4,
+        static_cast<std::size_t>(triangleCount) * static_cast<std::size_t>(tileCount) * sizeof(int)
     );
 
-    glBindBuffer(GL_SHADER_STORAGE_BUFFER, materialSSBO);
-    glBufferData(
-        GL_SHADER_STORAGE_BUFFER,
-        materials.size() * sizeof(Material),
-        materials.data(),
-        GL_DYNAMIC_DRAW
-    );
+    ensureBufferSize(triangleSSBO, triangleCapacity, triangleBytes);
+    ensureBufferSize(materialSSBO, materialCapacity, materialBytes);
+    ensureBufferSize(tileCountSSBO, tileCountCapacity, tileIntBytes);
+    ensureBufferSize(tileOffsetSSBO, tileOffsetCapacity, tileOffsetBytes);
+    ensureBufferSize(tileCounterSSBO, tileCounterCapacity, tileIntBytes);
+    ensureBufferSize(tileTriangleSSBO, tileTriangleCapacity, tileTriangleBytes);
+
+    if (triangleBytes > 0) {
+        glBindBuffer(GL_SHADER_STORAGE_BUFFER, triangleSSBO);
+        glBufferSubData(GL_SHADER_STORAGE_BUFFER, 0, triangleBytes, triangles.data());
+    }
+
+    if (materialBytes > 0) {
+        glBindBuffer(GL_SHADER_STORAGE_BUFFER, materialSSBO);
+        glBufferSubData(GL_SHADER_STORAGE_BUFFER, 0, materialBytes, materials.data());
+    }
+
+    std::vector<int> zeros(static_cast<std::size_t>(tileCount), 0);
+    glBindBuffer(GL_SHADER_STORAGE_BUFFER, tileCountSSBO);
+    glBufferSubData(GL_SHADER_STORAGE_BUFFER, 0, zeros.size() * sizeof(int), zeros.data());
+    glBindBuffer(GL_SHADER_STORAGE_BUFFER, tileCounterSSBO);
+    glBufferSubData(GL_SHADER_STORAGE_BUFFER, 0, zeros.size() * sizeof(int), zeros.data());
 
     glBindBufferBase(GL_SHADER_STORAGE_BUFFER, 0, triangleSSBO);
     glBindBufferBase(GL_SHADER_STORAGE_BUFFER, 1, materialSSBO);
+    glBindBufferBase(GL_SHADER_STORAGE_BUFFER, 2, tileCountSSBO);
+    glBindBufferBase(GL_SHADER_STORAGE_BUFFER, 3, tileOffsetSSBO);
+    glBindBufferBase(GL_SHADER_STORAGE_BUFFER, 4, tileCounterSSBO);
+    glBindBufferBase(GL_SHADER_STORAGE_BUFFER, 5, tileTriangleSSBO);
 
-    if (!triangles.empty()) {
-        glDispatchCompute((triangles.size() + 255) / 256, 1, 1);
+    projectionShader.use();
+    projectionShader.setUInt("triangleCount", triangleCount);
+
+    if (triangleCount > 0) {
+        glDispatchCompute((triangleCount + 255) / 256, 1, 1);
     }
     glMemoryBarrier(GL_SHADER_STORAGE_BARRIER_BIT);
 
+    if (triangleCount > 0) {
+        countShader.use();
+        countShader.setInt("projectedTriangleCount", triangleCount);
+        countShader.setInt("tileRows", TileRows);
+        countShader.setInt("tileColumns", TileColumns);
+        glDispatchCompute((triangleCount + 63) / 64, 1, 1);
+        glMemoryBarrier(GL_SHADER_STORAGE_BARRIER_BIT);
+    }
+
+    prefixShader.use();
+    prefixShader.setInt("tileCount", tileCount);
+    glDispatchCompute(1, 1, 1);
+    glMemoryBarrier(GL_SHADER_STORAGE_BARRIER_BIT);
+
+    if (triangleCount > 0) {
+        fillShader.use();
+        fillShader.setInt("projectedTriangleCount", triangleCount);
+        fillShader.setInt("tileRows", TileRows);
+        fillShader.setInt("tileColumns", TileColumns);
+        fillShader.setInt("tileTriangleCapacity", static_cast<int>(tileTriangleCapacity / sizeof(int)));
+        glDispatchCompute((triangleCount + 63) / 64, 1, 1);
+        glMemoryBarrier(GL_SHADER_STORAGE_BARRIER_BIT);
+    }
+
     screenShader.use();
-    screenShader.setUInt("triangleCount", triangles.size());
+    screenShader.setInt("tileRows", TileRows);
+    screenShader.setInt("tileColumns", TileColumns);
+    screenShader.setInt("tileTriangleCapacity", static_cast<int>(tileTriangleCapacity / sizeof(int)));
 
     glBindVertexArray(VAO);
     glDrawArrays(GL_TRIANGLE_STRIP, 0, 4);
 }
-
-/*
-
-
-    glDeleteShader(screenVert);
-    glDeleteShader(screenFrag);
-*/

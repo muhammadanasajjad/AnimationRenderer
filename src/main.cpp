@@ -24,15 +24,16 @@ PRELOAD: {
 
 SCENE someScene: {
   INTERPOLATION customInterp: {
-    function: f(t) = 1-e^(-6*t)*cos(180*70*t/pi)
+    function: f(t) = 1-e^(-6*t)*cos(10*t)
   }
   CUBE cube: { size: 2, position: {0, 1, 1} }
   fadeIn cube over 1000ms using easeInOut
   wait
-  SPHERE someName: { radius: 1 }
   rotate cube { x: 10deg, y: -30deg } over 1500ms using customInterp
   wait
-  show someName, edit someName { radius: 2 } over 1000ms using easeIn
+  SPHERE someName: { radius: 1 }
+  show someName, edit someName { radius: 7 } over 1000ms using customInterp
+  move cube { x: 0, y: 6, z: 6 } over 1000ms using customInterp
   wait, wait 1000ms
   TEXT helloText: { text: "Hello!" }
   fadeOut cube over 1000ms
@@ -40,6 +41,20 @@ SCENE someScene: {
   fadeIn helloText over 3000ms
   wait
 }
+play someScene
+play someScene
+play someScene
+play someScene
+play someScene
+play someScene
+play someScene
+play someScene
+play someScene
+play someScene
+play someScene
+play someScene
+play someScene
+play someScene
 play someScene
 )";
 

@@ -10,4 +10,8 @@ public:
     Stroke stroke;
 
     std::vector<Material> getMaterials() override;
+
+protected:
+    bool hasVisibleFill();
+    bool hasVisibleStroke();
 };

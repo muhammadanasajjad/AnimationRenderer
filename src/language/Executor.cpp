@@ -14,7 +14,7 @@ public:
     using Variables = std::unordered_map<std::string, float>;
     using Interpolations = std::unordered_map<std::string, std::function<float(float)>>;
 
-    enum class Kind { None, Number, Vector, Color, String, Boolean };
+    enum class Kind { None, Number, Vector, Color, String };
 
     struct EvalContext {
         Variables* variables = nullptr;
@@ -56,7 +56,7 @@ public:
     }
 
     double asNumber() {
-        if (kind == Kind::Number || kind == Kind::Boolean)
+        if (kind == Kind::Number)
             return number;
         if (kind == Kind::Vector)
             return vector.x;
@@ -576,7 +576,14 @@ void Executor::execute(ProgramNode* program) {
         }
     }
 
-    bool played = false;
+    scenePlaylist.clear();
+    nextSceneIndex = 0;
+    baseObjectCount = objects.size();
+    baseStates.clear();
+
+    for (std::unique_ptr<Object>& object : objects) {
+        baseStates.push_back(captureObjectState(object.get()));
+    }
 
     for (std::unique_ptr<ASTNode>& child : program->children) {
         if (child->getType() == ASTNodeType::PlayAction) {
@@ -584,15 +591,49 @@ void Executor::execute(ProgramNode* program) {
             auto it = scenes.find(play->scene);
 
             if (it != scenes.end()) {
-                execute(it->second);
-                played = true;
+                scenePlaylist.push_back(it->second);
             }
         }
     }
 
-    if (!played && !scenes.empty()) {
-        execute(scenes.begin()->second);
+    if (scenePlaylist.empty() && !scenes.empty()) {
+        scenePlaylist.push_back(scenes.begin()->second);
     }
+
+    if (!scenePlaylist.empty()) {
+        startNextScene();
+    }
+}
+
+void Executor::startNextScene() {
+    if (nextSceneIndex >= scenePlaylist.size()) {
+        return;
+    }
+
+    SceneDeclarationNode* scene = scenePlaylist[nextSceneIndex++];
+
+    if (objects.size() > baseObjectCount) {
+        objects.resize(baseObjectCount);
+    }
+
+    execute(scene);
+}
+
+void Executor::restartPlaylist() {
+    if (scenePlaylist.empty()) {
+        return;
+    }
+
+    if (objects.size() > baseObjectCount) {
+        objects.resize(baseObjectCount);
+    }
+
+    for (std::size_t i = 0; i < baseStates.size() && i < objects.size(); i++) {
+        restoreObjectState(objects[i].get(), baseStates[i]);
+    }
+
+    nextSceneIndex = 0;
+    startNextScene();
 }
 
 void Executor::execute(SceneDeclarationNode* scene) {
@@ -639,6 +680,9 @@ void Executor::execute(SceneDeclarationNode* scene) {
     }
 
     timeline->reset();
+
+    activeSceneDuration = std::max(currentTime, pendingEndTime);
+    playbackTime = 0.0f;
 }
 
 void Executor::executeObjectDeclaration(ObjectDeclarationNode* node) {
@@ -1113,13 +1157,45 @@ int Executor::getObjectIndex(std::string name) {
 
 void Executor::update(float deltaTime) {
     timeline->update(deltaTime);
+    playbackTime += deltaTime;
+
+    while (nextSceneIndex < scenePlaylist.size() && playbackTime >= activeSceneDuration) {
+        float overflow = playbackTime - activeSceneDuration;
+        startNextScene();
+        playbackTime = overflow;
+
+        if (overflow > 0.0f) {
+            timeline->seek(overflow);
+        }
+    }
 }
 
 void Executor::seek(float time) {
-    timeline->seek(time);
+    if (scenePlaylist.empty()) {
+        playbackTime = time;
+        timeline->seek(time);
+        return;
+    }
+
+    restartPlaylist();
+
+    float remaining = time;
+
+    while (nextSceneIndex < scenePlaylist.size() && remaining >= activeSceneDuration) {
+        remaining -= activeSceneDuration;
+        startNextScene();
+    }
+
+    playbackTime = remaining;
+    timeline->seek(remaining);
 }
 
 void Executor::reset() {
+    if (!scenePlaylist.empty()) {
+        restartPlaylist();
+        return;
+    }
+
     currentTime = 0.0f;
     pendingEndTime = 0.0f;
 

@@ -18,7 +18,17 @@ layout(std430, binding = 1) buffer MaterialBuffer {
     Material materials[];
 };
 
-uniform uint triangleCount;
+layout(std430, binding = 3) readonly buffer TileOffsets {
+    int tileOffsets[];
+};
+
+layout(std430, binding = 5) readonly buffer TileTriangles {
+    int tileTriangles[];
+};
+
+uniform int tileRows;
+uniform int tileColumns;
+uniform int tileTriangleCapacity;
 
 in vec2 uv;
 
@@ -50,7 +60,15 @@ void main() {
     float depths[5];
     int depthCount = 0;
 
-    for (int i = 0; i < triangleCount; i++) {
+    int tileX = clamp(int(uv.x * float(tileColumns)), 0, tileColumns - 1);
+    int tileY = clamp(int(uv.y * float(tileRows)), 0, tileRows - 1);
+    int tile = tileY * tileColumns + tileX;
+
+    int tileBegin = clamp(tileOffsets[tile], 0, tileTriangleCapacity);
+    int tileEnd = clamp(tileOffsets[tile + 1], tileBegin, tileTriangleCapacity);
+
+    for (int tileIndex = tileBegin; tileIndex < tileEnd; tileIndex++) {
+        int i = tileTriangles[tileIndex];
         Triangle tri = triangles[i];
         vec4 albedo = materials[int(tri.a.a)].albedo;
 
