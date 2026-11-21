@@ -57,6 +57,11 @@ private:
     float playbackTime = 0.0f;
     float activeSceneDuration = 0.0f;
 
+    void validateProgram(ProgramNode* program);
+    void validateScene(SceneDeclarationNode* scene);
+    void validateExpression(ExpressionNode* node, std::string parameterName,
+                            std::vector<std::string>& interpolationNames);
+
     void executeObjectDeclaration(ObjectDeclarationNode* node);
     void executeFadeAction(FadeActionNode* node);
     void executeRotateAction(RotateActionNode* node);

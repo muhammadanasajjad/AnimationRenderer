@@ -7,9 +7,9 @@
 
 class Tokeniser {
 public:
-    Tokeniser(std::string& source);
+    Tokeniser(const std::string& source);
     
-    void tokenise();
+    void tokenise(bool printDebug = true);
     
     std::vector<Token> getTokens();
     

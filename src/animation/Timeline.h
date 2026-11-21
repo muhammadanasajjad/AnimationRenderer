@@ -7,7 +7,7 @@
 
 class Timeline {
 public:
-    explicit Timeline(std::vector<std::unique_ptr<Object>>& objects);
+    Timeline(std::vector<std::unique_ptr<Object>>& objects);
 
     void addAnimation(std::unique_ptr<Animation> animation);
     void clear();

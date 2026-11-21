@@ -2,7 +2,7 @@
 
 #include <iostream>
 
-Tokeniser::Tokeniser(std::string& source) : source(source) {
+Tokeniser::Tokeniser(const std::string& source) : source(source) {
     tokenRules = {
         { std::regex("\\n+"), TokenType::LineBreak },
         { std::regex(" +"), TokenType::WhiteSpace },
@@ -20,8 +20,8 @@ Tokeniser::Tokeniser(std::string& source) : source(source) {
         { std::regex("\\+"), TokenType::Plus },
         { std::regex("-"), TokenType::Minus },
         
-        { std::regex("[0-9]+"), TokenType::IntegerLiteral },
         { std::regex("[0-9]+\\.[0-9]+"), TokenType::FloatLiteral },
+        { std::regex("[0-9]+"), TokenType::IntegerLiteral },
         { 
             std::regex("\"[^\"\\n]*\""), // start with " any character except quotation and new line 0+ then end with "
             TokenType::StringLiteral
@@ -68,7 +68,7 @@ void debugToken(const Token& token) {
         << std::endl;
 }
 
-void Tokeniser::tokenise() {
+void Tokeniser::tokenise(bool printDebug) {
     // meaning tokens is already filled
     if (tokens.size() != 0) return;
     
@@ -107,7 +107,9 @@ void Tokeniser::tokenise() {
             pos += matchInfo.length();
             
             Token token = tokens[tokens.size() - 1];
-            debugToken(token);
+            if (printDebug) {
+                debugToken(token);
+            }
             
             if (token.type != LineBreak) columnNumber += matchInfo.length();
             else {

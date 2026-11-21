@@ -4,6 +4,70 @@
 #include <unordered_set>
 
 #include "ASTNode.h"
+#include "ParseError.h"
+
+std::string describeToken(Token token) {
+    if (token.type == TokenType::FileEnd) {
+        return "end of file";
+    }
+
+    if (token.type == TokenType::LineBreak) {
+        return "end of line";
+    }
+
+    if (token.type == TokenType::WhiteSpace) {
+        return "whitespace";
+    }
+
+    return "'" + token.value + "'";
+}
+
+std::string describeTokenType(TokenType type) {
+    switch (type) {
+        case TokenType::FileEnd:
+            return "end of file";
+        case TokenType::LineBreak:
+            return "end of line";
+        case TokenType::WhiteSpace:
+            return "whitespace";
+        case TokenType::Colon:
+            return "':'";
+        case TokenType::OpenCurlyBrace:
+            return "'{'";
+        case TokenType::CloseCurlyBrace:
+            return "'}'";
+        case TokenType::OpenParenthesis:
+            return "'('";
+        case TokenType::CloseParenthesis:
+            return "')'";
+        case TokenType::Comma:
+            return "','";
+        case TokenType::Equals:
+            return "'='";
+        case TokenType::Caret:
+            return "'^'";
+        case TokenType::Asterisk:
+            return "'*'";
+        case TokenType::ForwardSlash:
+            return "'/'";
+        case TokenType::Plus:
+            return "'+'";
+        case TokenType::Minus:
+            return "'-'";
+        case TokenType::IntegerLiteral:
+            return "integer literal";
+        case TokenType::FloatLiteral:
+            return "float literal";
+        case TokenType::StringLiteral:
+            return "string literal";
+        case TokenType::ObjectType:
+            return "object type";
+        case TokenType::Identifier:
+            return "identifier";
+        default:
+            return "token";
+    }
+}
 
 Parser::Parser(std::vector<Token> tokens) : tokens(tokens) {
     expressionOperators = {
@@ -49,7 +113,7 @@ std::unique_ptr<ASTNode> Parser::parseTopLevelStatement() {
     if (peek().value == "play")
         return parsePlayAction();
     
-    throw std::runtime_error("Unexpected top-level token " + peek().value);
+    throw ParseError{peek(), "Expected PRELOAD, SETTINGS, SCENE, or play, got " + describeToken(peek())};
 }
 
 std::unique_ptr<ExpressionNode> Parser::parseExpression(int minBinding) {
@@ -172,13 +236,14 @@ std::unique_ptr<ExpressionNode> Parser::parsePrimaryExpression() {
         return expression;
     }
 
-    throw std::runtime_error("Unexpected token in primary expression: " + peek().value);
+    throw ParseError{peek(), "Expected expression, got " + describeToken(peek())};
 }
 
 std::unique_ptr<IntegerLiteralNode> Parser::parseIntegerLiteral() {
     Token token = consume();
 
     auto literal = std::make_unique<IntegerLiteralNode>();
+    literal->token = token;
     literal->value = std::stod(token.value);
     literal->isInteger = true;
 
@@ -189,6 +254,7 @@ std::unique_ptr<FloatLiteralNode> Parser::parseFloatLiteral() {
     Token token = consume();
 
     auto literal = std::make_unique<FloatLiteralNode>();
+    literal->token = token;
     literal->value = std::stod(token.value);
 
     return literal;
@@ -198,6 +264,7 @@ std::unique_ptr<StringLiteralNode> Parser::parseStringLiteral() {
     Token token = consume();
 
     auto literal = std::make_unique<StringLiteralNode>();
+    literal->token = token;
     literal->value = token.value;
 
     return literal;
@@ -207,6 +274,7 @@ std::unique_ptr<IdentifierNode> Parser::parseIdentifierExpression() {
     Token token = consume();
 
     auto identifier = std::make_unique<IdentifierNode>();
+    identifier->token = token;
     identifier->name = token.value;
 
     return identifier;
@@ -215,7 +283,7 @@ std::unique_ptr<IdentifierNode> Parser::parseIdentifierExpression() {
 std::unique_ptr<ObjectExpressionNode> Parser::parseObjectExpression() {
     auto objectExpression = std::make_unique<ObjectExpressionNode>();
 
-    consume("{");
+    objectExpression->token = consume("{");
 
     while (pos < tokens.size() && peek().value != "}") {
         while (pos < tokens.size() &&
@@ -231,7 +299,7 @@ std::unique_ptr<ObjectExpressionNode> Parser::parseObjectExpression() {
             break;
 
         if (peek().type != TokenType::Identifier)
-            throw std::runtime_error("Expected identifier, got: " + peek().value);
+            throw ParseError{peek(), "Expected identifier, got " + describeToken(peek())};
 
         Token parameterName = consume();
 
@@ -248,7 +316,7 @@ std::unique_ptr<ObjectExpressionNode> Parser::parseObjectExpression() {
 std::unique_ptr<TupleExpressionNode> Parser::parseTupleExpression() {
     auto tuple = std::make_unique<TupleExpressionNode>();
 
-    consume("{");
+    tuple->token = consume("{");
 
     skipSeparators();
 
@@ -294,7 +362,7 @@ void Parser::skipSeparators() {
 std::unique_ptr<SceneDeclarationNode> Parser::parseSceneDeclaration() {
     auto scene = std::make_unique<SceneDeclarationNode>();
 
-    consume("SCENE");
+    scene->token = consume("SCENE");
 
     scene->name = consume(TokenType::Identifier).value;
 
@@ -317,7 +385,7 @@ std::unique_ptr<SceneDeclarationNode> Parser::parseSceneDeclaration() {
 std::unique_ptr<InterpolationDeclarationNode> Parser::parseInterpolationDeclaration() {
     auto interpolation = std::make_unique<InterpolationDeclarationNode>();
 
-    consume("INTERPOLATION");
+    interpolation->token = consume("INTERPOLATION");
 
     interpolation->name = consume(TokenType::Identifier).value;
 
@@ -349,6 +417,7 @@ std::unique_ptr<InterpolationDeclarationNode> Parser::parseInterpolationDeclarat
 std::unique_ptr<ObjectDeclarationNode> Parser::parseObjectDeclaration() {
     auto object = std::make_unique<ObjectDeclarationNode>();
 
+    object->token = peek();
     object->objectType = consume(TokenType::ObjectType).value;
     object->name = consume(TokenType::Identifier).value;
 
@@ -373,7 +442,7 @@ std::unique_ptr<ASTNode> Parser::parseSceneStatement() {
     if (actionKeywords.contains(peek().value))
         return parseAction();
 
-    throw std::runtime_error("Unexpected scene statement: " + peek().value);
+    throw ParseError{peek(), "Expected object type, or action, got " + describeToken(peek())};
 }
 
 std::unique_ptr<ASTNode> Parser::parseAction() {
@@ -398,13 +467,13 @@ std::unique_ptr<ASTNode> Parser::parseAction() {
     if (peek().value == "wait")
         return parseWaitAction();
 
-    throw std::runtime_error("Unexpected action: " + peek().value);
+    throw ParseError{peek(), "Expected fadeIn, fadeOut, rotate, move, scale, show, edit, or wait, got " + describeToken(peek())};
 }
 
 std::unique_ptr<PlayActionNode> Parser::parsePlayAction() {
     auto action = std::make_unique<PlayActionNode>();
 
-    consume("play");
+    action->token = consume("play");
 
     action->scene = consume(TokenType::Identifier).value;
 
@@ -416,6 +485,7 @@ std::unique_ptr<FadeActionNode> Parser::parseFadeAction() {
 
     Token keyword = consume();
 
+    action->token = keyword;
     action->isFadeIn = keyword.value == "fadeIn";
     action->object = consume(TokenType::Identifier).value;
 
@@ -435,6 +505,7 @@ std::unique_ptr<FadeActionNode> Parser::parseFadeAction() {
 std::unique_ptr<RotateActionNode> Parser::parseRotateAction() {
     auto action = std::make_unique<RotateActionNode>();
 
+    action->token = peek();
     consume("rotate");
 
     action->object = consume(TokenType::Identifier).value;
@@ -460,6 +531,7 @@ std::unique_ptr<RotateActionNode> Parser::parseRotateAction() {
 std::unique_ptr<MoveActionNode> Parser::parseMoveAction() {
     auto action = std::make_unique<MoveActionNode>();
 
+    action->token = peek();
     consume("move");
 
     action->object = consume(TokenType::Identifier).value;
@@ -485,6 +557,7 @@ std::unique_ptr<MoveActionNode> Parser::parseMoveAction() {
 std::unique_ptr<ScaleActionNode> Parser::parseScaleAction() {
     auto action = std::make_unique<ScaleActionNode>();
 
+    action->token = peek();
     consume("scale");
 
     action->object = consume(TokenType::Identifier).value;
@@ -510,6 +583,7 @@ std::unique_ptr<ScaleActionNode> Parser::parseScaleAction() {
 std::unique_ptr<ShowActionNode> Parser::parseShowAction() {
     auto action = std::make_unique<ShowActionNode>();
 
+    action->token = peek();
     consume("show");
 
     action->object = consume(TokenType::Identifier).value;
@@ -530,6 +604,7 @@ std::unique_ptr<ShowActionNode> Parser::parseShowAction() {
 std::unique_ptr<EditActionNode> Parser::parseEditAction() {
     auto action = std::make_unique<EditActionNode>();
 
+    action->token = peek();
     consume("edit");
 
     action->object = consume(TokenType::Identifier).value;
@@ -553,6 +628,7 @@ std::unique_ptr<EditActionNode> Parser::parseEditAction() {
 std::unique_ptr<WaitActionNode> Parser::parseWaitAction() {
     auto action = std::make_unique<WaitActionNode>();
 
+    action->token = peek();
     consume("wait");
 
     if (!isStatementEnd())
@@ -585,7 +661,7 @@ std::unique_ptr<PreloadDeclarationNode> Parser::parsePreloadDeclaration() {
         size_t extensionPosition = file.value.find_last_of('.');
 
         if (extensionPosition == std::string::npos)
-            throw std::runtime_error("Preloaded file must have an extension: " + file.value);
+            throw ParseError{file, "Expected file path with an extension, got " + describeToken(file)};
 
         std::string extension = file.value.substr(extensionPosition);
 
@@ -639,19 +715,18 @@ Token Parser::consume() {
 }
 
 Token Parser::consume(std::string expected) {
-    if (pos >= tokens.size() || tokens[pos].value != expected) {
-        throw std::runtime_error(
-            "Expected '" + expected + "', got '" +
-            (pos < tokens.size() ? tokens[pos].value : "EOF") + "'"
-        );
+    Token token = peek();
+    if (pos >= tokens.size() || token.value != expected) {
+        throw ParseError{token, "Expected '" + expected + "', got " + describeToken(token)};
     }
 
     return tokens[pos++];
 }
 
 Token Parser::consume(TokenType expected) {
-    if (pos >= tokens.size() || tokens[pos].type != expected) {
-        throw std::runtime_error("Unexpected token type" + peek().value);
+    Token token = peek();
+    if (pos >= tokens.size() || token.type != expected) {
+        throw ParseError{token, "Expected " + describeTokenType(expected) + ", got " + describeToken(token)};
     }
 
     return tokens[pos++];

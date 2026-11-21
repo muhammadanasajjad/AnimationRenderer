@@ -6,6 +6,8 @@
 #include <vector>
 #include <unordered_map>
 
+#include "Token.h"
+
 enum class ASTNodeType {
     Program,
 
@@ -39,6 +41,8 @@ enum class ASTNodeType {
 
 class ASTNode {
 public:
+    Token token = Token{TokenType::FileEnd, "", 0, 0, 0};
+
     virtual ASTNodeType getType() const = 0;
     virtual ~ASTNode() = default;
 };

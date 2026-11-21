@@ -1,8 +1,8 @@
-#include <glad/glad.h>
 #include <fstream>
 #include <iostream>
 #include <sstream>
 #include <stdexcept>
+#include <glad/glad.h>
 
 #include "Shader.h"
 

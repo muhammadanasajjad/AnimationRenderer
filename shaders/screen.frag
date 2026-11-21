@@ -54,7 +54,7 @@ bool pointInTriangle(vec2 point, vec2 triP1, vec2 triP2, vec2 triP3) {
 }
 
 void main() {
-    fragColor = vec4(0);
+    fragColor = vec4(0, 0, 0, 1);
 
     vec4 albedos[5];
     float depths[5];

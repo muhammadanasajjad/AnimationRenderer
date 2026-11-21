@@ -3,11 +3,67 @@
 #include <algorithm>
 #include <cmath>
 #include <memory>
+#include <stdexcept>
 #include <utility>
 
 #include "../scene/Shapes.h"
 #include "../scene/Shapes2D.h"
 #include "../scene/Shapes3D.h"
+
+#include "ParseError.h"
+
+bool isNameInList(std::string name, std::vector<std::string>& names) {
+    for (std::string item : names) {
+        if (item == name) {
+            return true;
+        }
+    }
+
+    return false;
+}
+
+bool isBuiltInFunction(std::string name) {
+    std::vector<std::string> functions = {
+        "sin", "cos", "tan", "asin", "acos", "atan", "atan2",
+        "sqrt", "abs", "exp", "log", "log10", "pow", "min", "max",
+        "floor", "ceil", "round", "sign", "radians", "degrees", "clamp", "mod"
+    };
+
+    return isNameInList(name, functions);
+}
+
+bool isBuiltInInterpolation(std::string name) {
+    std::vector<std::string> interpolations = {
+        "linear", "easeIn", "easeOut", "easeInOut"
+    };
+
+    return isNameInList(name, interpolations);
+}
+
+bool isKnownObjectType(std::string name) {
+    std::vector<std::string> objectTypes = {
+        "CUBE", "SQUARE", "RECTANGLE", "CUBOID", "SPHERE",
+        "CYLINDER", "ELLIPSE", "CIRCLE"
+    };
+
+    return isNameInList(name, objectTypes);
+}
+
+void checkDefinedName(Token token, std::string name, std::vector<std::string>& names,
+                      std::string kind, std::string action) {
+    if (name.empty()) {
+        return;
+    }
+
+    if (kind == "interpolation" && isBuiltInInterpolation(name)) {
+        return;
+    }
+
+    if (!isNameInList(name, names)) {
+        throw ParseError{token, "Execution error: Undefined " + kind + " '" + name +
+                                "' in " + action + " action"};
+    }
+}
 
 class EvalValue {
 public:
@@ -562,10 +618,191 @@ Executor::Executor(Objects& objects)
     : objects(objects), timeline(std::make_unique<Timeline>(objects)) {
 }
 
+void Executor::validateExpression(ExpressionNode* node, std::string parameterName,
+                                  std::vector<std::string>& interpolationNames) {
+    if (!node) {
+        return;
+    }
+
+    ASTNodeType type = node->getType();
+
+    if (type == ASTNodeType::IdentifierExpression) {
+        IdentifierNode* identifier = static_cast<IdentifierNode*>(node);
+        std::string name = identifier->name;
+        if (name == parameterName || name == "pi" || name == "e") {
+            return;
+        }
+
+        throw ParseError{identifier->token, "Execution error: Undefined variable '" + name + "'"};
+    }
+
+    if (type == ASTNodeType::FunctionCallExpression) {
+        FunctionCallExpressionNode* call = static_cast<FunctionCallExpressionNode*>(node);
+        if (call->callee && call->callee->getType() == ASTNodeType::IdentifierExpression) {
+            IdentifierNode* callee = static_cast<IdentifierNode*>(call->callee.get());
+            std::string name = callee->name;
+            if (!isBuiltInFunction(name) && !isNameInList(name, interpolationNames)) {
+                throw ParseError{callee->token, "Execution error: Undefined function or interpolation '" + name + "'"};
+            }
+        } else {
+            validateExpression(call->callee.get(), parameterName, interpolationNames);
+        }
+
+        for (std::unique_ptr<ExpressionNode>& argument : call->arguments) {
+            validateExpression(argument.get(), parameterName, interpolationNames);
+        }
+        return;
+    }
+
+    if (type == ASTNodeType::BinaryExpression) {
+        BinaryExpressionNode* expression = static_cast<BinaryExpressionNode*>(node);
+        validateExpression(expression->left.get(), parameterName, interpolationNames);
+        validateExpression(expression->right.get(), parameterName, interpolationNames);
+        return;
+    }
+
+    if (type == ASTNodeType::UnaryExpression) {
+        UnaryExpressionNode* expression = static_cast<UnaryExpressionNode*>(node);
+        validateExpression(expression->operand.get(), parameterName, interpolationNames);
+        return;
+    }
+
+    if (type == ASTNodeType::UnitExpression) {
+        UnitExpressionNode* expression = static_cast<UnitExpressionNode*>(node);
+        validateExpression(expression->value.get(), parameterName, interpolationNames);
+        return;
+    }
+
+    if (type == ASTNodeType::ObjectExpression) {
+        ObjectExpressionNode* expression = static_cast<ObjectExpressionNode*>(node);
+        for (auto& entry : expression->properties) {
+            validateExpression(entry.second.get(), parameterName, interpolationNames);
+        }
+        return;
+    }
+
+    if (type == ASTNodeType::TupleExpression) {
+        TupleExpressionNode* expression = static_cast<TupleExpressionNode*>(node);
+        for (std::unique_ptr<ExpressionNode>& element : expression->elements) {
+            validateExpression(element.get(), parameterName, interpolationNames);
+        }
+    }
+}
+
+void Executor::validateScene(SceneDeclarationNode* scene) {
+    std::vector<std::string> objectNames;
+    std::vector<std::string> interpolationNames;
+
+    for (std::unique_ptr<ASTNode>& child : scene->children) {
+        if (child->getType() == ASTNodeType::ObjectDeclaration) {
+            ObjectDeclarationNode* object = static_cast<ObjectDeclarationNode*>(child.get());
+            if (!isKnownObjectType(object->objectType)) {
+                throw ParseError{object->token, "Execution error: Unknown object type '" +
+                                                object->objectType + "' in declaration of '" +
+                                                object->name + "'"};
+            }
+
+            objectNames.push_back(object->name);
+        } else if (child->getType() == ASTNodeType::InterpolationDeclaration) {
+            InterpolationDeclarationNode* interpolation =
+                static_cast<InterpolationDeclarationNode*>(child.get());
+            interpolationNames.push_back(interpolation->name);
+        }
+    }
+
+    for (std::unique_ptr<ASTNode>& child : scene->children) {
+        ASTNodeType type = child->getType();
+
+        if (type == ASTNodeType::ObjectDeclaration) {
+            ObjectDeclarationNode* object = static_cast<ObjectDeclarationNode*>(child.get());
+            validateExpression(object->properties.get(), "", interpolationNames);
+        } else if (type == ASTNodeType::InterpolationDeclaration) {
+            InterpolationDeclarationNode* interpolation =
+                static_cast<InterpolationDeclarationNode*>(child.get());
+            validateExpression(interpolation->function.get(), interpolation->parameter,
+                               interpolationNames);
+        } else if (type == ASTNodeType::FadeAction) {
+            FadeActionNode* action = static_cast<FadeActionNode*>(child.get());
+            checkDefinedName(action->token, action->object, objectNames, "object", "fade");
+            checkDefinedName(action->token, action->interpolation, interpolationNames,
+                             "interpolation", "fade");
+            validateExpression(action->duration.get(), "", interpolationNames);
+        } else if (type == ASTNodeType::RotateAction) {
+            RotateActionNode* action = static_cast<RotateActionNode*>(child.get());
+            checkDefinedName(action->token, action->object, objectNames, "object", "rotate");
+            checkDefinedName(action->token, action->interpolation, interpolationNames,
+                             "interpolation", "rotate");
+            validateExpression(action->amount.get(), "", interpolationNames);
+            validateExpression(action->duration.get(), "", interpolationNames);
+        } else if (type == ASTNodeType::MoveAction) {
+            MoveActionNode* action = static_cast<MoveActionNode*>(child.get());
+            checkDefinedName(action->token, action->object, objectNames, "object", "move");
+            checkDefinedName(action->token, action->interpolation, interpolationNames,
+                             "interpolation", "move");
+            validateExpression(action->amount.get(), "", interpolationNames);
+            validateExpression(action->duration.get(), "", interpolationNames);
+        } else if (type == ASTNodeType::ScaleAction) {
+            ScaleActionNode* action = static_cast<ScaleActionNode*>(child.get());
+            checkDefinedName(action->token, action->object, objectNames, "object", "scale");
+            checkDefinedName(action->token, action->interpolation, interpolationNames,
+                             "interpolation", "scale");
+            validateExpression(action->amount.get(), "", interpolationNames);
+            validateExpression(action->duration.get(), "", interpolationNames);
+        } else if (type == ASTNodeType::ShowAction) {
+            ShowActionNode* action = static_cast<ShowActionNode*>(child.get());
+            checkDefinedName(action->token, action->object, objectNames, "object", "show");
+            checkDefinedName(action->token, action->interpolation, interpolationNames,
+                             "interpolation", "show");
+            validateExpression(action->duration.get(), "", interpolationNames);
+        } else if (type == ASTNodeType::EditAction) {
+            EditActionNode* action = static_cast<EditActionNode*>(child.get());
+            checkDefinedName(action->token, action->object, objectNames, "object", "edit");
+            checkDefinedName(action->token, action->interpolation, interpolationNames,
+                             "interpolation", "edit");
+            validateExpression(action->properties.get(), "", interpolationNames);
+            validateExpression(action->duration.get(), "", interpolationNames);
+        } else if (type == ASTNodeType::WaitAction) {
+            WaitActionNode* action = static_cast<WaitActionNode*>(child.get());
+            validateExpression(action->duration.get(), "", interpolationNames);
+        }
+    }
+}
+
+void Executor::validateProgram(ProgramNode* program) {
+    std::vector<std::string> sceneNames;
+    std::vector<std::string> emptyNames;
+
+    for (std::unique_ptr<ASTNode>& child : program->children) {
+        if (child->getType() == ASTNodeType::SceneDeclaration) {
+            sceneNames.push_back(static_cast<SceneDeclarationNode*>(child.get())->name);
+        }
+    }
+
+    for (std::unique_ptr<ASTNode>& child : program->children) {
+        ASTNodeType type = child->getType();
+
+        if (type == ASTNodeType::SceneDeclaration) {
+            validateScene(static_cast<SceneDeclarationNode*>(child.get()));
+        } else if (type == ASTNodeType::PlayAction) {
+            PlayActionNode* play = static_cast<PlayActionNode*>(child.get());
+            std::string scene = play->scene;
+            if (!isNameInList(scene, sceneNames)) {
+                throw ParseError{play->token, "Execution error: Undefined scene '" + scene +
+                                              "' in play action"};
+            }
+        } else if (type == ASTNodeType::SettingsDeclaration) {
+            SettingsDeclarationNode* settings = static_cast<SettingsDeclarationNode*>(child.get());
+            validateExpression(settings->value.get(), "", emptyNames);
+        }
+    }
+}
+
 void Executor::execute(ProgramNode* program) {
     if (!program) {
         return;
     }
+
+    validateProgram(program);
 
     auto scenes = std::unordered_map<std::string, SceneDeclarationNode*>();
 
@@ -594,10 +831,6 @@ void Executor::execute(ProgramNode* program) {
                 scenePlaylist.push_back(it->second);
             }
         }
-    }
-
-    if (scenePlaylist.empty() && !scenes.empty()) {
-        scenePlaylist.push_back(scenes.begin()->second);
     }
 
     if (!scenePlaylist.empty()) {
